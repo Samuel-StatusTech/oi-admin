@@ -1,25 +1,22 @@
-import logo from './logo.svg';
 import './App.css';
-
+import { createMuiTheme, ThemeProvider } from '@material-ui/core';
+import { MuiPickersUtilsProvider } from '@material-ui/pickers';
+import moment from 'moment';
+import MomentUtils from '@date-io/moment';
+import 'moment/locale/pt-br';
+import Router from './router';
+const theme = createMuiTheme({
+  typography: {
+    fontFamily: "'Open Sans', Roboto, 'Helvetica Neue', Arial, Helvetica, sans-serif",
+  },
+});
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <ThemeProvider theme={theme}>
+      <MuiPickersUtilsProvider libInstance={moment} utils={MomentUtils} locale={'pt-br'}>
+        <Router />
+      </MuiPickersUtilsProvider>
+    </ThemeProvider>
   );
 }
-
 export default App;
