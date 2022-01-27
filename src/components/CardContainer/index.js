@@ -28,7 +28,7 @@ export default ({ children, alert, buttons = [], mainButton }) => {
       container
       component='main'
       alignItems='center'
-      justify='center'
+      justifyContent='center'
       direction='column'
       className={styles.container}
     >
@@ -37,7 +37,7 @@ export default ({ children, alert, buttons = [], mainButton }) => {
         <Paper className={styles.cardContainer}>
           <Grid
             container
-            justify='space-evenly'
+            justifyContent='space-evenly'
             alignItems='center'
             style={{ height: '100%', padding: 50, backgroundColor: '#FFF' }}
             spacing={2}
@@ -64,7 +64,7 @@ export default ({ children, alert, buttons = [], mainButton }) => {
               </Grid>
             )}
             <Grid item lg={12} md={12} sm={12} xs={12} style={{ marginTop: 20 }}>
-              <Grid container justify='space-evenly'>
+              <Grid container justifyContent='space-evenly'>
                 {buttons
                   .filter((button) => !button.hide)
                   .map((button) => (

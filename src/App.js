@@ -1,11 +1,12 @@
 import './App.css';
-import { createMuiTheme, ThemeProvider } from '@material-ui/core';
+import { createTheme, ThemeProvider } from '@material-ui/core';
 import { MuiPickersUtilsProvider } from '@material-ui/pickers';
 import moment from 'moment';
 import MomentUtils from '@date-io/moment';
 import 'moment/locale/pt-br';
 import Router from './router';
-const theme = createMuiTheme({
+import firebase from './firebase';
+const theme = createTheme({
   typography: {
     fontFamily: "'Open Sans', Roboto, 'Helvetica Neue', Arial, Helvetica, sans-serif",
   },
