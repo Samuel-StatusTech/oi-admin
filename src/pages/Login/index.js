@@ -23,12 +23,12 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const [login, setLogin] = useState('');
   const [password, setPassword] = useState('');
-  const [errors, setErrors] = useState({});
   const [openAlert, setOpenAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState('');
   const history = useHistory();
   const authentication = async () => {
-    return auth.authenticate(login, password);
+    const authLogin = await auth.authenticate(login, password);
+    return authLogin;
   };
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -69,8 +69,6 @@ const Login = () => {
                 onChange={(e) => setLogin(e.target.value)}
                 variant='outlined'
                 fullWidth
-                error={errors.login}
-                helperText={errors.login ? validMessages.LOGIN : null}
               />
             </Grid>
             <Grid item lg={12} md={12} sm={12} xs={12}>
@@ -82,8 +80,6 @@ const Login = () => {
                 onChange={(e) => setPassword(e.target.value)}
                 variant='outlined'
                 fullWidth
-                error={errors.password}
-                helperText={errors.password ? validMessages.PASSWORD : null}
               />
             </Grid>
             <Grid item lg={12} md={12} sm={12} xs={12}>

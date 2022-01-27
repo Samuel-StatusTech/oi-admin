@@ -1,9 +1,7 @@
 import firebase from '../firebase';
-import { getAuth, signInWithEmailAndPassword, signOut } from 'firebase/auth';
-const auth = getAuth();
-const user = auth.currentUser;
+import { signInWithEmailAndPassword, signOut, getIdToken } from 'firebase/auth';
 function authenticate(email, password) {
-  return signInWithEmailAndPassword(auth, email, password)
+  return signInWithEmailAndPassword(firebase.auth, email, password)
     .then((userCredential) => {
       const user = userCredential.user;
       return [user, false];
@@ -14,12 +12,15 @@ function authenticate(email, password) {
     });
 }
 function logout() {
-  return signOut(auth)
+  return signOut(firebase.auth)
     .then(() => {
-      return [user, true];
+      return [null, false];
     })
     .catch((error) => {
-      return [error.message, false];
+      return [error.message, true];
     });
 }
-export default { authenticate, logout, user };
+function getUser() {
+  return getIdToken();
+}
+export default { authenticate, logout };
