@@ -6,6 +6,7 @@ import { useHistory } from 'react-router-dom';
 import CardContainer from '../../components/CardContainer';
 import InputPassword from '../../components/Input/Password';
 
+import auth from '../../service/auth';
 const Container = styled.div`
   display: flex;
   justify-content: center;
@@ -14,61 +15,33 @@ const Container = styled.div`
 `;
 
 const validMessages = {
-  USERNAME: 'Usuário não encontrado',
+  LOGIN: 'Usuário não encontrado',
   PASSWORD: 'Senha inválida',
 };
 
 const Login = () => {
   const [loading, setLoading] = useState(false);
-  const [username, setUsername] = useState('');
+  const [login, setLogin] = useState('');
   const [password, setPassword] = useState('');
   const [errors, setErrors] = useState({});
   const [openAlert, setOpenAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState('');
   const history = useHistory();
-
+  const authentication = async () => {
+    return auth.authenticate(login, password);
+  };
   const handleLogin = async (e) => {
     e.preventDefault();
-    try {
-      setLoading(true);
-      if (!/^[a-zA-Z]{1}(\w)+$/.test(username))
-        throw { message: 'Não pode espaço em branco e nem caractere especial no nome de usuário' };
-      if (!/^\S*$/.test(password)) throw { message: 'Não pode espaço em branco no campo de senha' };
-      const { data, status, statusText } = await console.log('autenticar'); //TODO: Autenticar
 
-      if (status === 200) {
-        setErrors({});
-
-        localStorage.setItem('token', data.token);
-        history.push('/dashboard');
-      } else {
-        alert(statusText);
-      }
-    } catch (error) {
-      if (error.isAxiosError) {
-        const response = error.response;
-
-        if (!response) {
-          setErrors({});
-          setAlertMessage('Servidor não esta respondendo');
-          setOpenAlert(true);
-        } else if (response.data.error === validMessages.USERNAME) {
-          setErrors({ username: true });
-        } else if (response.data.error === validMessages.PASSWORD) {
-          setErrors({ password: true });
-        } else {
-          setAlertMessage(response?.data);
-          setOpenAlert(true);
-          setErrors({});
-        }
-      } else {
-        setErrors({});
-        setAlertMessage(error?.message ?? 'Erro não esperado, tente novamente mais tarde');
-        setOpenAlert(true);
-      }
-    } finally {
-      setLoading(false);
+    setLoading(true);
+    const [user, error] = await authentication();
+    if (error) {
+      setOpenAlert(true);
+      setAlertMessage('Login Incorreto!');
+    } else {
+      history.push('/dashboard');
     }
+    setLoading(false);
   };
 
   return (
@@ -91,13 +64,13 @@ const Login = () => {
             <Grid item lg={12} md={12} sm={12} xs={12}>
               <TextField
                 label='Login'
-                value={username}
+                value={login}
                 style={{ backgroundColor: '#fff', borderRadius: 5 }}
-                onChange={(e) => setUsername(e.target.value)}
+                onChange={(e) => setLogin(e.target.value)}
                 variant='outlined'
                 fullWidth
-                error={errors.username}
-                helperText={errors.username ? validMessages.USERNAME : null}
+                error={errors.login}
+                helperText={errors.login ? validMessages.LOGIN : null}
               />
             </Grid>
             <Grid item lg={12} md={12} sm={12} xs={12}>

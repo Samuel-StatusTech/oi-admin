@@ -5,7 +5,6 @@ import moment from 'moment';
 import MomentUtils from '@date-io/moment';
 import 'moment/locale/pt-br';
 import Router from './router';
-import firebase from './firebase';
 const theme = createTheme({
   typography: {
     fontFamily: "'Open Sans', Roboto, 'Helvetica Neue', Arial, Helvetica, sans-serif",
