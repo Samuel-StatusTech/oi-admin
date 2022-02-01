@@ -5,9 +5,13 @@ import SettingsIcon from '../../assets/icons/ic_config.svg';
 import EaseGrid from '../../components/EaseGrid';
 import ButtonRound from '../../components/ButtonRound';
 import { Check, Close } from '@material-ui/icons';
+import ClientsService from './../../service/clients';
 const Settings = () => {
   const history = useHistory();
-  const [data, setData] = useState([]);
+  const { data } = ClientsService();
+  useEffect(() => {
+    console.log(data);
+  }, [data]);
   const [statusData, setStatusData] = useState({});
   const [loading, setLoading] = useState(true);
   const [show, setShow] = useState(false);
@@ -43,7 +47,7 @@ const Settings = () => {
 
   if (loading) {
     return (
-      <Grid container spacing={2} justify='center'>
+      <Grid container spacing={2} justifyContent='center'>
         <Grid item>
           <CircularProgress />
         </Grid>

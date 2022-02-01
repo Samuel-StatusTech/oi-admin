@@ -157,7 +157,7 @@ const RouteListItem = ({ route, handleClick, expanded, setExpanded }) => {
   );
 };
 
-const Sidebar = ({ open, toggle, user, events }) => {
+const Sidebar = ({ open, toggle, user, list }) => {
   const styles = useStyles();
   const history = useHistory();
   const theme = useTheme();
@@ -170,7 +170,7 @@ const Sidebar = ({ open, toggle, user, events }) => {
   const [expanded, setExpanded] = useState({});
 
   return (
-    events.length > 0 && (
+    list.length > 0 && (
       <Drawer
         open={open}
         variant='persistent'

@@ -6,8 +6,7 @@ import AllowedContainer from './AllowedContainer';
 
 const Pages = ({ user, path }) => {
   const history = useHistory();
-  const routes = path === '/dashboard';
-  AdminRoutes.map((route) => {
+  const routes = AdminRoutes.map((route) => {
     if (route.list) {
       return route.list;
     }
