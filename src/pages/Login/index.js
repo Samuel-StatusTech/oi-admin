@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Grid, TextField, CircularProgress, Button, Typography } from '@material-ui/core';
 import styled from 'styled-components';
 import { useHistory } from 'react-router-dom';
@@ -6,18 +6,14 @@ import { useHistory } from 'react-router-dom';
 import CardContainer from '../../components/CardContainer';
 import InputPassword from '../../components/Input/Password';
 
-import auth from '../../service/auth';
+import Authentication from '../../service/auth';
+import firebase from '../../firebase';
 const Container = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
   height: 100%;
 `;
-
-const validMessages = {
-  LOGIN: 'Usuário não encontrado',
-  PASSWORD: 'Senha inválida',
-};
 
 const Login = () => {
   const [loading, setLoading] = useState(false);
@@ -26,15 +22,13 @@ const Login = () => {
   const [openAlert, setOpenAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState('');
   const history = useHistory();
-  const authentication = async () => {
-    const authLogin = await auth.authenticate(login, password);
-    return authLogin;
-  };
+  const { authenticate, authUser, logout } = Authentication(firebase);
+
   const handleLogin = async (e) => {
     e.preventDefault();
 
     setLoading(true);
-    const [user, error] = await authentication();
+    const [, error] = await authenticate();
     if (error) {
       setOpenAlert(true);
       setAlertMessage('Login Incorreto!');
@@ -43,7 +37,9 @@ const Login = () => {
     }
     setLoading(false);
   };
-
+  useEffect(() => {
+    if (authUser) history.push('/dashboard');
+  }, [authUser]);
   return (
     <Container>
       <CardContainer
