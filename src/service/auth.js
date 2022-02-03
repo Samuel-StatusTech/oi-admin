@@ -4,7 +4,7 @@ const Authentication = (firebase) => {
   const [authUser, setAuthUser] = useState(null);
   useEffect(() => {
     onAuthStateChanged(firebase.auth, (user) => {
-      setAuthUser(user ?? null);
+      setAuthUser(user ?? false);
     });
   }, []);
   const authenticate = (email, password) => {

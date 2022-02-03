@@ -1,10 +1,13 @@
-import React from 'react';
-import { AppBar, Toolbar, IconButton } from '@material-ui/core';
+import React, { useEffect, useState } from 'react';
+import { AppBar, Toolbar, IconButton, Grid } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import { useHistory, Link } from 'react-router-dom';
 import MenuIcon from '@material-ui/icons/Menu';
 
 import logo from '../../assets/images/logo_blue.png';
+import UserButton from './../UserButton/index';
+import Authentication from './../../service/auth';
+import firebase from '../../firebase';
 
 const useStyles = makeStyles((theme) => ({
   appBar: {
@@ -35,7 +38,14 @@ const useStyles = makeStyles((theme) => ({
 const Navbar = ({ toggle, event }) => {
   const styles = useStyles();
   const history = useHistory();
-
+  const { logout, authUser } = Authentication(firebase);
+  const onLogout = () => {
+    logout();
+    history.push('/login');
+  };
+  useEffect(() => {
+    if (authUser === false) history.push('/login');
+  }, [authUser]);
   return (
     <AppBar className={styles.appBar}>
       <Toolbar>
@@ -71,6 +81,12 @@ const Navbar = ({ toggle, event }) => {
             alignItems: 'center',
           }}
         ></div>
+        <Grid container xs={12}>
+          <Grid item lg={11} md={10} xs={0}></Grid>
+          <Grid item lg={1} md={2} xs={12}>
+            <UserButton onLogout={onLogout} />
+          </Grid>
+        </Grid>
       </Toolbar>
     </AppBar>
   );

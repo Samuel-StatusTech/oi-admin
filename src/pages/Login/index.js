@@ -22,13 +22,13 @@ const Login = () => {
   const [openAlert, setOpenAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState('');
   const history = useHistory();
-  const { authenticate, authUser, logout } = Authentication(firebase);
+  const { authenticate, authUser } = Authentication(firebase);
 
   const handleLogin = async (e) => {
     e.preventDefault();
 
     setLoading(true);
-    const [, error] = await authenticate();
+    const [, error] = await authenticate(login, password);
     if (error) {
       setOpenAlert(true);
       setAlertMessage('Login Incorreto!');
@@ -59,7 +59,7 @@ const Login = () => {
             </Typography>
             <Grid item lg={12} md={12} sm={12} xs={12}>
               <TextField
-                label='Login'
+                label='E-mail'
                 value={login}
                 style={{ backgroundColor: '#fff', borderRadius: 5 }}
                 onChange={(e) => setLogin(e.target.value)}
