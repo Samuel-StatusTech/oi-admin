@@ -1,4 +1,5 @@
 function Clients() {
+  let uid;
   let CNPJ;
   let cashless;
   let createdAt;
@@ -7,6 +8,7 @@ function Clients() {
   let name;
   let status;
   function fromJson(json) {
+    this.uid = json['uid'];
     this.CNPJ = json['CNPJ'];
     this.cashless = json['cashless'];
     this.createdAt = json['createdAt'];
@@ -16,6 +18,6 @@ function Clients() {
     this.status = json['status'];
     return this;
   }
-  return { CNPJ, cashless, createdAt, devices, expireAt, name, status, fromJson };
+  return { uid, CNPJ, cashless, createdAt, devices, expireAt, name, status, fromJson };
 }
 export default Clients;

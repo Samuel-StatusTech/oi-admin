@@ -14,7 +14,7 @@ const ClientsService = () => {
       const snapshotVal = snapshot.val();
       for (let i in snapshotVal) {
         const clientObj = Clients();
-        clients.push(clientObj.fromJson(snapshotVal[i]));
+        clients.push(clientObj.fromJson({ uid: i, ...snapshotVal[i] }));
       }
       setData(clients);
     });

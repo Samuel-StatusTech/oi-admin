@@ -14,8 +14,6 @@ const Settings = () => {
     if (data.length) setLoading(false);
   }, [data]);
   const [loading, setLoading] = useState(true);
-  const [show, setShow] = useState(false);
-
   const columns = [
     { title: 'Cliente', field: 'name' },
     {
@@ -40,14 +38,14 @@ const Settings = () => {
         return status ? <Check /> : <Close />;
       },
     },
-    // {
-    //   title: 'Permissões',
-    //   render: ({ id }) => (
-    //     <Button onClick={handleGotoEdit(id)} variant='outlined' size='small' color='primary'>
-    //       Editar
-    //     </Button>
-    //   ),
-    // },
+    {
+      title: 'Ações',
+      render: ({ id }) => (
+        <Button onClick={handleGotoEdit(id)} variant='outlined' size='small' color='primary'>
+          Editar
+        </Button>
+      ),
+    },
   ];
   const handleGotoCreate = () => {
     history.push(`/dashboard/organization/new`);
