@@ -1,5 +1,5 @@
 import firebase from '../firebase';
-import { ref, onValue } from 'firebase/database';
+import { ref, onValue, set, push, child } from 'firebase/database';
 import { useState, useEffect } from 'react';
 import Clients from '../models/Clients';
 
@@ -22,7 +22,15 @@ const ClientsService = () => {
       setData([]);
     };
   }, []);
-
-  return { data };
+  const save = (data, uid = null) => {
+    let key = uid;
+    if (!uid) {
+      key = push(child(ref(firebase.db), table)).key;
+    }
+    return set(ref(firebase.db, `${table}/${key}`), data)
+      .then(() => true)
+      .catch(() => false);
+  };
+  return { data, save };
 };
 export default ClientsService;

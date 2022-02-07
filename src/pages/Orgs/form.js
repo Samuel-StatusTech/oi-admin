@@ -16,6 +16,8 @@ import {
 import { MenuItem } from '@material-ui/core';
 import { formatDateToMysqlDate } from '../../utils/date';
 import { formatCNPJ } from './../../utils/utils';
+import ClientsService from './../../service/clients';
+import Clients from '../../models/Clients';
 
 const validList = [
   { key: 'global', name: 'Global' },
@@ -26,15 +28,17 @@ const Organization = ({ history }) => {
   const [errorsVerify, setErrorsVerify] = useState({});
   const [action] = useState(idOrg === 'new');
   const { state } = history.location;
+  const { save } = ClientsService();
   const [loading, setLoading] = useState(false);
   const [buttonLoading, setButtonLoading] = useState(false);
   // Usuário comum
   const [name, setName] = useState('');
   const [cnpj, setCnpj] = useState('');
-  const [devices, setDevices] = useState('');
+  const [devices, setDevices] = useState(0);
   const [cashless, setCashless] = useState(false);
   const [status, setStatus] = useState(false);
-  const [expireDate, setExpireDate] = useState(formatDateToMysqlDate(new Date()));
+  const [expireAt, setExpireAt] = useState(formatDateToMysqlDate(new Date()));
+
   const GreenSwitch = withStyles({
     switchBase: {
       '&$checked': {
@@ -47,10 +51,6 @@ const Organization = ({ history }) => {
     checked: {},
     track: {},
   })(Switch);
-  const formData = (assignData = {}) => {
-    const data = Object.assign(assignData, {});
-    return data;
-  };
 
   useEffect(() => {
     if (!action) getData();
@@ -60,8 +60,19 @@ const Organization = ({ history }) => {
   const handleSave = async () => {
     try {
       setButtonLoading(true);
-      console.log('save');
-      history.goBack();
+      if (
+        await save({
+          name,
+          CNPJ: cnpj?.replace(/\D/g, ''),
+          devices,
+          cashless,
+          status,
+          createdAt: +new Date(),
+          expireAt: +new Date(expireAt),
+        })
+      ) {
+        history.goBack();
+      }
     } catch (error) {
       alert(error?.message ?? 'Ocorreu um erro');
     } finally {
@@ -69,11 +80,26 @@ const Organization = ({ history }) => {
     }
   };
 
-  const handleEdit = async (values) => {
+  const handleEdit = async () => {
     try {
       setButtonLoading(true);
-      console.log('edit');
-      history.goBack();
+      if (
+        await save(
+          {
+            uid: state.uid,
+            name,
+            CNPJ: cnpj?.replace(/\D/g, ''),
+            devices,
+            cashless,
+            status,
+            createdAt: state.createdAt,
+            expireAt: +new Date(expireAt),
+          },
+          state.uid
+        )
+      ) {
+        history.goBack();
+      }
     } catch (error) {
       alert(error?.message ?? 'Ocorreu um erro');
     } finally {
@@ -88,7 +114,7 @@ const Organization = ({ history }) => {
       setDevices(state.devices);
       setCashless(state.cashless);
       setStatus(state.status);
-      setExpireDate(formatDateToMysqlDate(new Date(state.expireAt)));
+      setExpireAt(formatDateToMysqlDate(new Date(state.expireAt)));
     }
     setLoading(false);
   };
@@ -185,8 +211,8 @@ const Organization = ({ history }) => {
                   <TextField
                     label='Data de vencimento'
                     name='devices'
-                    value={expireDate}
-                    onChange={(e) => setExpireDate(e.target.value)}
+                    value={expireAt}
+                    onChange={(e) => setExpireAt(e.target.value)}
                     variant='outlined'
                     type='date'
                     size='small'

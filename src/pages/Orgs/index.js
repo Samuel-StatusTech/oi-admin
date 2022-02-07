@@ -40,13 +40,8 @@ const Settings = () => {
     },
     {
       title: 'Ações',
-      render: ({ uid, CNPJ, cashless, createdAt, devices, expireAt, name, status }) => (
-        <Button
-          onClick={() => handleGotoEdit({ uid, CNPJ, cashless, createdAt, devices, expireAt, name, status })}
-          variant='outlined'
-          size='small'
-          color='primary'
-        >
+      render: (dados) => (
+        <Button onClick={() => handleGotoEdit(dados)} variant='outlined' size='small' color='primary'>
           Editar
         </Button>
       ),
@@ -57,7 +52,7 @@ const Settings = () => {
   };
 
   const handleGotoEdit = (dados) => {
-    history.push({ pathname: `/dashboard/organization/${dados.uid}`, state: dados });
+    history.push({ pathname: `/dashboard/organization/${dados.uid}`, state: dados.toJson() });
   };
 
   return loading ? (

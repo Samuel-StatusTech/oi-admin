@@ -3,10 +3,11 @@ function Clients() {
   let CNPJ;
   let cashless;
   let createdAt;
-  let devices;
+  let devices = 0;
   let expireAt;
   let name;
   let status;
+
   function fromJson(json) {
     this.uid = json['uid'];
     this.CNPJ = json['CNPJ'];
@@ -18,6 +19,18 @@ function Clients() {
     this.status = json['status'];
     return this;
   }
-  return { uid, CNPJ, cashless, createdAt, devices, expireAt, name, status, fromJson };
+  function toJson() {
+    return {
+      uid: this.uid,
+      CNPJ: this.CNPJ,
+      cashless: this.cashless,
+      createdAt: this.createdAt,
+      devices: this.devices,
+      expireAt: this.expireAt,
+      name: this.name,
+      status: this.status,
+    };
+  }
+  return { uid, CNPJ, cashless, createdAt, devices, expireAt, name, status, fromJson, toJson };
 }
 export default Clients;
