@@ -5,24 +5,16 @@ import {
   TextField,
   Switch,
   FormControlLabel,
-  Typography,
-  Divider,
   Button,
   CircularProgress,
   withStyles,
   Card,
   CardContent,
 } from '@material-ui/core';
-import { MenuItem } from '@material-ui/core';
 import { formatDateToMysqlDate } from '../../utils/date';
 import { formatCNPJ } from './../../utils/utils';
 import ClientsService from './../../service/clients';
-import Clients from '../../models/Clients';
 
-const validList = [
-  { key: 'global', name: 'Global' },
-  { key: 'event', name: 'Por Evento' },
-];
 const Organization = ({ history }) => {
   const { idOrg } = useParams();
   const [errorsVerify, setErrorsVerify] = useState({});
