@@ -34,14 +34,19 @@ const Settings = () => {
     {
       title: 'Cashless',
       field: 'cashless',
-      render: ({ id, status }) => {
-        return status ? <Check /> : <Close />;
+      render: ({ cashless }) => {
+        return cashless ? <Check /> : <Close />;
       },
     },
     {
       title: 'Ações',
-      render: ({ id }) => (
-        <Button onClick={handleGotoEdit(id)} variant='outlined' size='small' color='primary'>
+      render: ({ uid, CNPJ, cashless, createdAt, devices, expireAt, name, status }) => (
+        <Button
+          onClick={() => handleGotoEdit({ uid, CNPJ, cashless, createdAt, devices, expireAt, name, status })}
+          variant='outlined'
+          size='small'
+          color='primary'
+        >
           Editar
         </Button>
       ),
@@ -51,8 +56,8 @@ const Settings = () => {
     history.push(`/dashboard/organization/new`);
   };
 
-  const handleGotoEdit = (id) => () => {
-    history.push(`/dashboard/organization/${id}`);
+  const handleGotoEdit = (dados) => {
+    history.push({ pathname: `/dashboard/organization/${dados.uid}`, state: dados });
   };
 
   return loading ? (
@@ -68,7 +73,7 @@ const Settings = () => {
           columns={columns}
           data={data}
           toolbar={() => (
-            <ButtonRound variant='contained' color='primary' onClick={() => console.log('click')}>
+            <ButtonRound variant='contained' color='primary' onClick={() => handleGotoCreate()}>
               Cadastrar cliente
             </ButtonRound>
           )}
