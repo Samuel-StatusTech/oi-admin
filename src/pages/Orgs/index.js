@@ -6,36 +6,48 @@ import EaseGrid from '../../components/EaseGrid';
 import ButtonRound from '../../components/ButtonRound';
 import { Check, Close } from '@material-ui/icons';
 import ClientsService from './../../service/clients';
+import { formatCNPJ } from './../../utils/utils';
 const Settings = () => {
   const history = useHistory();
   const { data } = ClientsService();
   useEffect(() => {
-    console.log(data);
+    if (data.length) setLoading(false);
   }, [data]);
-  const [statusData, setStatusData] = useState({});
   const [loading, setLoading] = useState(true);
   const [show, setShow] = useState(false);
 
   const columns = [
     { title: 'Cliente', field: 'name' },
-    { title: 'Usuário', field: 'username' },
     {
-      filter: true,
-
-      title: 'Status',
-      field: 'status',
-      render: ({ id, status }) => {
-        return status;
+      title: 'CNPJ',
+      field: 'CNPJ',
+      render: ({ CNPJ }) => {
+        return formatCNPJ(CNPJ);
       },
     },
     {
-      title: 'Permissões',
-      render: ({ id }) => (
-        <Button onClick={handleGotoEdit(id)} variant='outlined' size='small' color='primary'>
-          Editar
-        </Button>
-      ),
+      title: 'Status',
+      field: 'status',
+      render: ({ status }) => {
+        return status ? <Check /> : <Close />;
+      },
     },
+    { title: 'Dispositivos', field: 'devices' },
+    {
+      title: 'Cashless',
+      field: 'cashless',
+      render: ({ id, status }) => {
+        return status ? <Check /> : <Close />;
+      },
+    },
+    // {
+    //   title: 'Permissões',
+    //   render: ({ id }) => (
+    //     <Button onClick={handleGotoEdit(id)} variant='outlined' size='small' color='primary'>
+    //       Editar
+    //     </Button>
+    //   ),
+    // },
   ];
   const handleGotoCreate = () => {
     history.push(`/dashboard/organization/new`);
@@ -45,28 +57,24 @@ const Settings = () => {
     history.push(`/dashboard/organization/${id}`);
   };
 
-  if (loading) {
-    return (
-      <Grid container spacing={2} justifyContent='center'>
-        <Grid item>
-          <CircularProgress />
-        </Grid>
+  return loading ? (
+    <Grid container spacing={2} justifyContent='center'>
+      <Grid item>
+        <CircularProgress />
       </Grid>
-    );
-  }
-
-  return (
+    </Grid>
+  ) : (
     <Grid container spacing={2}>
       <Grid item lg={12} md={12} sm={12} xs={12}>
-        {/* <EaseGrid
+        <EaseGrid
           columns={columns}
           data={data}
           toolbar={() => (
-            <ButtonRound variant='contained' color='primary' onClick={handleGotoCreate}>
+            <ButtonRound variant='contained' color='primary' onClick={() => console.log('click')}>
               Cadastrar cliente
             </ButtonRound>
           )}
-        /> */}
+        />
       </Grid>
     </Grid>
   );
