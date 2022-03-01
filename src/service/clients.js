@@ -28,8 +28,8 @@ const ClientsService = () => {
       key = push(child(ref(firebase.db), table)).key;
     }
     return set(ref(firebase.db, `${table}/${key}`), data)
-      .then(() => true)
-      .catch(() => false);
+      .then(() => [key, false])
+      .catch(() => [null, true]);
   };
   return { data, save };
 };

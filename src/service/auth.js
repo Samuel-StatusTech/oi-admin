@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'firebase/auth';
+import { signInWithEmailAndPassword, signOut, onAuthStateChanged, createUserWithEmailAndPassword } from 'firebase/auth';
 const Authentication = (firebase) => {
   const [authUser, setAuthUser] = useState(null);
   useEffect(() => {
@@ -20,6 +20,17 @@ const Authentication = (firebase) => {
         return [errorCode, true];
       });
   };
+  const createUser = (email, password) => {
+    return createUserWithEmailAndPassword(firebase.auth, email, password)
+      .then((userCredential) => {
+        const user = userCredential.user;
+        return [user, false];
+      })
+      .catch((error) => {
+        const errorCode = error.code;
+        return [errorCode, true];
+      });
+  };
   const logout = () => {
     return signOut(firebase.auth)
       .then(() => {
@@ -30,7 +41,7 @@ const Authentication = (firebase) => {
         return [error.message, true];
       });
   };
-  return { authenticate, authUser, logout };
+  return { authenticate, authUser, logout, createUser };
 };
 
 export default Authentication;

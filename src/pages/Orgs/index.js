@@ -23,6 +23,7 @@ const Settings = () => {
         return formatCNPJ(CNPJ);
       },
     },
+    { title: 'E-mail', field: 'email' },
     {
       title: 'Status',
       field: 'status',

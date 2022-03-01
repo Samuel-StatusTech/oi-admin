@@ -14,6 +14,9 @@ import {
 import { formatDateToMysqlDate } from '../../utils/date';
 import { formatCNPJ } from './../../utils/utils';
 import ClientsService from './../../service/clients';
+import Authentication from './../../service/auth';
+import firebase from '../../firebase';
+import axios from 'axios';
 
 const Organization = ({ history }) => {
   const { idOrg } = useParams();
@@ -30,7 +33,12 @@ const Organization = ({ history }) => {
   const [cashless, setCashless] = useState(false);
   const [status, setStatus] = useState(false);
   const [expireAt, setExpireAt] = useState(formatDateToMysqlDate(new Date()));
-
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const { createUser } = Authentication(firebase);
+  const errors = {
+    'auth/email-already-in-use': 'E-mail já existente!',
+  };
   const GreenSwitch = withStyles({
     switchBase: {
       '&$checked': {
@@ -52,8 +60,9 @@ const Organization = ({ history }) => {
   const handleSave = async () => {
     try {
       setButtonLoading(true);
-      if (
-        await save({
+      const [user, error] = await createUser(email, password);
+      if (!error) {
+        const [uid, err] = await save({
           name,
           CNPJ: cnpj?.replace(/\D/g, ''),
           devices,
@@ -61,9 +70,25 @@ const Organization = ({ history }) => {
           status,
           createdAt: +new Date(),
           expireAt: +new Date(expireAt),
-        })
-      ) {
-        history.goBack();
+          email,
+          uidUser: user.uid,
+        });
+        if (!err) {
+          const res = await axios.post(
+            'http://34.71.33.60:5050/newdatabase',
+            { database: uid },
+            {
+              headers: {
+                'Content-Type': 'application/json',
+              },
+            }
+          );
+          if (res.data.success) {
+            history.goBack();
+          }
+        }
+      } else {
+        throw new Error(errors[user]);
       }
     } catch (error) {
       alert(error?.message ?? 'Ocorreu um erro');
@@ -84,6 +109,8 @@ const Organization = ({ history }) => {
             devices,
             cashless,
             status,
+            email: state.email ?? null,
+            uidUser: state.uidUser ?? null,
             createdAt: state.createdAt,
             expireAt: +new Date(expireAt),
           },
@@ -107,6 +134,7 @@ const Organization = ({ history }) => {
       setCashless(state.cashless);
       setStatus(state.status);
       setExpireAt(formatDateToMysqlDate(new Date(state.expireAt)));
+      setEmail(state.email);
     }
     setLoading(false);
   };
@@ -124,8 +152,21 @@ const Organization = ({ history }) => {
     errorsVerify.cnpj = null;
     return false;
   };
+  const emailInputVerify = (email) => {
+    if (isEmpty(email)) return (errorsVerify.email = 'É necessário preencher este campo');
+    if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(email))
+      return (errorsVerify.email = 'Endereço de email inválido');
+    errorsVerify.email = null;
+    return false;
+  };
+  const passwordInputVerify = (password) => {
+    if (!/^\S{4,}/.test(password)) return (errorsVerify.password = 'Mínimo 4 caracteres');
+    if (!/^\S*$/i.test(password)) return (errorsVerify.password = 'Não pode espaço em branco no campo');
+    errorsVerify.password = null;
+    return false;
+  };
   const verifyInputs = () => {
-    return nameInputVerify(name) || cnpjVerify(cnpj ?? '');
+    return nameInputVerify(name) || cnpjVerify(cnpj ?? '') || emailInputVerify(email) || passwordInputVerify(password);
   };
   const handleSubmit = () => {
     try {
@@ -208,6 +249,44 @@ const Organization = ({ history }) => {
                     variant='outlined'
                     type='date'
                     size='small'
+                    fullWidth
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <TextField
+                    label='E-mail'
+                    name='email'
+                    value={email}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      setEmail(value);
+                      emailInputVerify(value);
+                    }}
+                    error={Boolean(errorsVerify?.email)}
+                    helperText={errorsVerify?.email}
+                    variant='outlined'
+                    size='small'
+                    type='email'
+                    disabled={!action}
+                    fullWidth
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <TextField
+                    label='Senha'
+                    name='password'
+                    value={password}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      setPassword(value);
+                      passwordInputVerify(password);
+                    }}
+                    error={Boolean(errorsVerify?.password)}
+                    helperText={errorsVerify?.password}
+                    variant='outlined'
+                    size='small'
+                    type='password'
+                    disabled={!action}
                     fullWidth
                   />
                 </Grid>
