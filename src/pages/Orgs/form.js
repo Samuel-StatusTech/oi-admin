@@ -14,16 +14,17 @@ import {
 import { formatDateToMysqlDate } from '../../utils/date';
 import { formatCNPJ } from './../../utils/utils';
 import ClientsService from './../../service/clients';
+import ManagersService from './../../service/managers';
 import Authentication from './../../service/auth';
 import firebase from '../../firebase';
 import axios from 'axios';
-
 const Organization = ({ history }) => {
   const { idOrg } = useParams();
   const [errorsVerify, setErrorsVerify] = useState({});
   const [action] = useState(idOrg === 'new');
   const { state } = history.location;
-  const { save } = ClientsService();
+  const clientsService = ClientsService();
+  const managersService = ManagersService();
   const [loading, setLoading] = useState(false);
   const [buttonLoading, setButtonLoading] = useState(false);
   // Usuário comum
@@ -60,32 +61,37 @@ const Organization = ({ history }) => {
   const handleSave = async () => {
     try {
       setButtonLoading(true);
-      const [user, error] = await createUser(email, password);
-      if (!error) {
-        const [uid, err] = await save({
-          name,
-          CNPJ: cnpj?.replace(/\D/g, ''),
-          devices,
-          cashless,
-          status,
-          createdAt: +new Date(),
-          expireAt: +new Date(expireAt),
+      let [user, error1] = await createUser(email, password);
+      let [uid, error2] = await clientsService.save({
+        name,
+        CNPJ: cnpj?.replace(/\D/g, ''),
+        devices,
+        cashless,
+        status,
+        createdAt: +new Date(),
+        expireAt: +new Date(expireAt),
+      });
+      let [, error3] = await managersService.save(
+        {
           email,
-          uidUser: user.uid,
-        });
-        if (!err) {
-          const res = await axios.post(
-            'http://34.71.33.60:5050/newdatabase',
-            { database: uid },
-            {
-              headers: {
-                'Content-Type': 'application/json',
-              },
-            }
-          );
-          if (res.data.success) {
-            history.goBack();
+          uid: user.uid,
+          client: uid,
+          master: true,
+        },
+        user.uid
+      );
+      if (!error1 && !error2 && !error3) {
+        const res = await axios.post(
+          'http://34.71.33.60:5050/newdatabase',
+          { database: uid },
+          {
+            headers: {
+              'Content-Type': 'application/json',
+            },
           }
+        );
+        if (res.data.success) {
+          history.goBack();
         }
       } else {
         throw new Error(errors[user]);
@@ -101,7 +107,7 @@ const Organization = ({ history }) => {
     try {
       setButtonLoading(true);
       if (
-        await save(
+        await clientsService.save(
           {
             uid: state.uid,
             name,
@@ -143,7 +149,6 @@ const Organization = ({ history }) => {
   };
   const nameInputVerify = (name) => {
     if (isEmpty(name)) return (errorsVerify.name = 'É necessário preencher este campo');
-    if (!/^[a-zA-Z ]*$/.test(name)) return (errorsVerify.name = 'Esse campo só aceita letras.');
     errorsVerify.name = null;
     return false;
   };
