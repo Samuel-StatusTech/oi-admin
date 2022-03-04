@@ -62,6 +62,7 @@ const Organization = ({ history }) => {
     try {
       setButtonLoading(true);
       let [user, error1] = await createUser(email, password);
+      console.log(user);
       let [uid, error2] = await clientsService.save({
         name,
         CNPJ: cnpj?.replace(/\D/g, ''),
@@ -70,6 +71,8 @@ const Organization = ({ history }) => {
         status,
         createdAt: +new Date(),
         expireAt: +new Date(expireAt),
+        email,
+        uidUser: user.uid,
       });
       let [, error3] = await managersService.save(
         {
