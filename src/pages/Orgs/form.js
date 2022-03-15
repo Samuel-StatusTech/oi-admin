@@ -18,6 +18,8 @@ import ManagersService from './../../service/managers';
 import Authentication from './../../service/auth';
 import firebase from '../../firebase';
 import axios from 'axios';
+import sha1 from 'sha1';
+
 const Organization = ({ history }) => {
   const { idOrg } = useParams();
   const [errorsVerify, setErrorsVerify] = useState({});
@@ -62,9 +64,10 @@ const Organization = ({ history }) => {
     try {
       setButtonLoading(true);
       let [user, error1] = await createUser(email, password);
-      console.log(user);
+      const dbName = sha1(Math.random());
       let [uid, error2] = await clientsService.save({
         name,
+        dbName,
         CNPJ: cnpj?.replace(/\D/g, ''),
         devices,
         cashless,
@@ -79,6 +82,7 @@ const Organization = ({ history }) => {
           email,
           uid: user.uid,
           client: uid,
+          dbName,
           master: true,
         },
         user.uid
@@ -86,7 +90,7 @@ const Organization = ({ history }) => {
       if (!error1 && !error2 && !error3) {
         const res = await axios.post(
           'https://api-databases.oitickets.com.br/newdatabase',
-          { database: uid },
+          { database: dbName },
           {
             headers: {
               'Content-Type': 'application/json',
