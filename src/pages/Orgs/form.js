@@ -85,7 +85,7 @@ const Organization = ({ history }) => {
       );
       if (!error1 && !error2 && !error3) {
         const res = await axios.post(
-          'http://34.71.33.60:5050/newdatabase',
+          'https://api-databases.oitickets.com.br/newdatabase',
           { database: uid },
           {
             headers: {
