@@ -64,41 +64,45 @@ const Organization = ({ history }) => {
     try {
       setButtonLoading(true);
       let [user, error1] = await createUser(email, password);
-      const dbName = sha1(Math.random());
-      let [uid, error2] = await clientsService.save({
-        name,
-        dbName,
-        CNPJ: cnpj?.replace(/\D/g, ''),
-        devices,
-        cashless,
-        status,
-        createdAt: +new Date(),
-        expireAt: +new Date(expireAt),
-        email,
-        uidUser: user.uid,
-      });
-      let [, error3] = await managersService.save(
-        {
-          email,
-          uid: user.uid,
-          client: uid,
+      if (!error1) {
+        const dbName = sha1(Math.random());
+        let [uid, error2] = await clientsService.save({
+          name,
           dbName,
-          master: true,
-        },
-        user.uid
-      );
-      if (!error1 && !error2 && !error3) {
-        const res = await axios.post(
-          'https://api-databases.oitickets.com.br/newdatabase',
-          { database: dbName },
+          CNPJ: cnpj?.replace(/\D/g, ''),
+          devices,
+          cashless,
+          status,
+          createdAt: +new Date(),
+          expireAt: +new Date(expireAt),
+          email,
+          uidUser: user.uid,
+        });
+        let [, error3] = await managersService.save(
           {
-            headers: {
-              'Content-Type': 'application/json',
-            },
-          }
+            email,
+            uid: user.uid,
+            client: uid,
+            dbName,
+            master: true,
+          },
+          user.uid
         );
-        if (res.data.success) {
-          history.goBack();
+        if (!error2 && !error3) {
+          const res = await axios.post(
+            'https://api-databases.oitickets.com.br/newdatabase',
+            { database: dbName },
+            {
+              headers: {
+                'Content-Type': 'application/json',
+              },
+            }
+          );
+          if (res.data.success) {
+            history.goBack();
+          }
+        } else {
+          throw new Error('Erro ao cadastrar no banco');
         }
       } else {
         throw new Error(errors[user]);
