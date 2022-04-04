@@ -65,7 +65,7 @@ const Organization = ({ history }) => {
       setButtonLoading(true);
       let [user, error1] = await createUser(email, password);
       if (!error1) {
-        const dbName = sha1(Math.random());
+        const dbName = `DB${sha1(Math.random())}`;
         let [uid, error2] = await clientsService.save({
           name,
           dbName,
