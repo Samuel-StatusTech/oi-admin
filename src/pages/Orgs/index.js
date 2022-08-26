@@ -7,6 +7,10 @@ import ButtonRound from '../../components/ButtonRound';
 import { Check, Close } from '@material-ui/icons';
 import ClientsService from './../../service/clients';
 import { formatCNPJ } from './../../utils/utils';
+import firebase from '../../firebase';
+import { ref, onValue } from "firebase/database";
+import axios from 'axios';
+
 const Settings = () => {
   const history = useHistory();
   const { data } = ClientsService();
@@ -56,6 +60,27 @@ const Settings = () => {
     history.push({ pathname: `/dashboard/organization/${dados.uid}`, state: dados.toJson() });
   };
 
+  const handleUpdate = async () => {
+    setLoading(true)
+    onValue(ref(firebase.db, '/Clients'), async (snapshot) => {
+      const clients = snapshot.val();
+      for(const key in clients) {
+        const { dbName } = clients[key];
+        const res = await axios.post(
+          'https://api-databases.oitickets.com.br/updatedatabase',
+          { database: dbName },
+          {
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          }
+        );
+        console.log(res.data)
+      }
+      setLoading(false)
+    });
+  };
+
   return loading ? (
     <Grid container spacing={2} justifyContent='center'>
       <Grid item>
@@ -69,9 +94,14 @@ const Settings = () => {
           columns={columns}
           data={data}
           toolbar={() => (
-            <ButtonRound variant='contained' color='primary' onClick={() => handleGotoCreate()}>
-              Cadastrar cliente
-            </ButtonRound>
+            <>
+              <ButtonRound variant='contained' color='primary' onClick={() => handleGotoCreate()}>
+                Cadastrar cliente
+              </ButtonRound>
+              <ButtonRound style={{marginLeft: 20}} variant='contained' color='warning' onClick={() => handleUpdate()}>
+                Atualizar clientes
+              </ButtonRound>
+            </>
           )}
         />
       </Grid>
