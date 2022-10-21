@@ -141,7 +141,7 @@ const Organization = ({ history }) => {
       setButtonLoading(true);
       handleLogoImage(async (imageUrl) => {
         if (
-          await clientsService.save(
+          await clientsService.saveUpdate(
             {
               uid: state.uid,
               name,
