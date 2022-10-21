@@ -63,10 +63,6 @@ const Organization = ({ history }) => {
     // eslint-disable-next-line
   }, []);
 
-  useEffect(() => {
-    console.log({logoFixed})
-  }, [logoFixed]);
-
   const handleLogoImage = async (callback) => {
     if(!logoFixed) {
       callback('');
