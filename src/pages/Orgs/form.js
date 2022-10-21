@@ -13,10 +13,12 @@ import {
 } from '@material-ui/core';
 import { formatDateToMysqlDate } from '../../utils/date';
 import { formatCNPJ } from './../../utils/utils';
+import ImagePicker from '../../components/ImagePicker';
 import ClientsService from './../../service/clients';
 import ManagersService from './../../service/managers';
 import Authentication from './../../service/auth';
 import firebase from '../../firebase';
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import axios from 'axios';
 import sha1 from 'sha1';
 
@@ -25,6 +27,7 @@ const Organization = ({ history }) => {
   const [errorsVerify, setErrorsVerify] = useState({});
   const [action] = useState(idOrg === 'new');
   const { state } = history.location;
+  const [logoFixed, setLogoFixed] = useState(state ? state.logoFixed : null);
   const clientsService = ClientsService();
   const managersService = ManagersService();
   const [loading, setLoading] = useState(false);
@@ -60,50 +63,73 @@ const Organization = ({ history }) => {
     // eslint-disable-next-line
   }, []);
 
+  useEffect(() => {
+    console.log({logoFixed})
+  }, [logoFixed]);
+
+  const handleLogoImage = async (callback) => {
+    if(!logoFixed) {
+      callback('');
+    } else if(typeof logoFixed === 'string') {
+      callback(logoFixed);
+    } else {
+      const pathFile = `logoFixed/${(new Date()).getTime()}-${logoFixed.name}`;
+      const storageRef = ref(firebase.storage, pathFile);
+      uploadBytes(storageRef, logoFixed).then((snapshot) => {
+        getDownloadURL(snapshot.ref).then((downloadURL) => {
+          callback(downloadURL);
+        });
+      });
+    }
+  }
+
   const handleSave = async () => {
     try {
       setButtonLoading(true);
       let [user, error1] = await createUser(email, password);
       if (!error1) {
-        const dbName = `DB${sha1(Math.random())}`;
-        let [uid, error2] = await clientsService.save({
-          name,
-          dbName,
-          CNPJ: cnpj?.replace(/\D/g, ''),
-          devices,
-          cashless,
-          status,
-          createdAt: +new Date(),
-          expireAt: +new Date(expireAt),
-          email,
-          uidUser: user.uid,
-        });
-        let [, error3] = await managersService.save(
-          {
-            email,
-            uid: user.uid,
-            client: uid,
+        handleLogoImage(async (imageUrl) => {
+          const dbName = `DB${sha1(Math.random())}`;
+          let [uid, error2] = await clientsService.save({
+            name,
             dbName,
-            master: true,
-          },
-          user.uid
-        );
-        if (!error2 && !error3) {
-          const res = await axios.post(
-            'https://api-databases.oitickets.com.br/newdatabase',
-            { database: dbName },
+            CNPJ: cnpj?.replace(/\D/g, ''),
+            devices,
+            cashless,
+            status,
+            createdAt: +new Date(),
+            expireAt: +new Date(expireAt),
+            email,
+            logoFixed: imageUrl,
+            uidUser: user.uid,
+          });
+          let [, error3] = await managersService.save(
             {
-              headers: {
-                'Content-Type': 'application/json',
-              },
-            }
+              email,
+              uid: user.uid,
+              client: uid,
+              dbName,
+              master: true,
+            },
+            user.uid
           );
-          if (res.data.success) {
-            history.goBack();
+          if (!error2 && !error3) {
+            const res = await axios.post(
+              'https://api-databases.oitickets.com.br/newdatabase',
+              { database: dbName },
+              {
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+              }
+            );
+            if (res.data.success) {
+              history.goBack();
+            }
+          } else {
+            throw new Error('Erro ao cadastrar no banco');
           }
-        } else {
-          throw new Error('Erro ao cadastrar no banco');
-        }
+        })
       } else {
         throw new Error(errors[user]);
       }
@@ -117,25 +143,28 @@ const Organization = ({ history }) => {
   const handleEdit = async () => {
     try {
       setButtonLoading(true);
-      if (
-        await clientsService.save(
-          {
-            uid: state.uid,
-            name,
-            CNPJ: cnpj?.replace(/\D/g, ''),
-            devices,
-            cashless,
-            status,
-            email: state.email ?? null,
-            uidUser: state.uidUser ?? null,
-            createdAt: state.createdAt,
-            expireAt: +new Date(expireAt),
-          },
-          state.uid
-        )
-      ) {
-        history.goBack();
-      }
+      handleLogoImage(async (imageUrl) => {
+        if (
+          await clientsService.save(
+            {
+              uid: state.uid,
+              name,
+              CNPJ: cnpj?.replace(/\D/g, ''),
+              devices,
+              cashless,
+              status,
+              email: state.email ?? null,
+              logoFixed: imageUrl,
+              uidUser: state.uidUser ?? null,
+              createdAt: state.createdAt,
+              expireAt: +new Date(expireAt),
+            },
+            state.uid
+          )
+        ) {
+          history.goBack();
+        }
+      })
     } catch (error) {
       alert(error?.message ?? 'Ocorreu um erro');
     } finally {
@@ -184,13 +213,19 @@ const Organization = ({ history }) => {
   const verifyInputs = () => {
     return nameInputVerify(name) || cnpjVerify(cnpj ?? '') || emailInputVerify(email) || passwordInputVerify(password);
   };
+  const verifyInputsEdit = () => {
+    return nameInputVerify(name) || cnpjVerify(cnpj ?? '');
+  };
   const handleSubmit = () => {
     try {
-      if (verifyInputs()) throw { message: 'Um ou mais campos possui erro!' };
+      if(buttonLoading)
+        return;
       if (action) {
+        if (verifyInputs()) throw { message: 'Um ou mais campos possui erro!' };
         handleSave();
         return;
       }
+      if (verifyInputsEdit()) throw { message: 'Um ou mais campos possui erro!' };
       handleEdit();
     } catch (error) {
       alert(error.message);
@@ -307,6 +342,14 @@ const Organization = ({ history }) => {
                   />
                 </Grid>
               </Grid>
+            </Grid>
+            <Grid item xl={6} lg={6} md={6} sm={12} xs={12}>
+            <ImagePicker
+              label='Logo fixa'
+              name='imageLogo'
+              image={logoFixed}
+              setImage={setLogoFixed}
+            />
             </Grid>
             <Grid item lg={12} md={12} sm={12} xs={12}>
               <Grid container spacing={2}>

@@ -8,3 +8,27 @@ export const formatCNPJ = (cnpj) => {
   const p2 = x[2] ? `.${x[2]}` : '';
   return `${x[1]}${p2}${p3}${p4}${p5}`;
 };
+
+export const currencyFormatter = (value) => {
+  if (!Number(value)) return '';
+
+  const amount = new Intl.NumberFormat('pt-BR', {
+    style: 'currency',
+    currency: 'BRL',
+  }).format(value / 100);
+
+  return `${amount}`;
+}
+
+export const getParentElementUntilFindElement = (target, findElement) => {
+  let elementFind = false;
+  let element = target;
+  while (elementFind === false) {
+    if (element.querySelector(findElement)) {
+      elementFind = true;
+    } else {
+      element = element.parentElement;
+    }
+  }
+  return element.querySelector(findElement);
+}
