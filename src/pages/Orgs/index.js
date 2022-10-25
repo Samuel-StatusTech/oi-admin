@@ -98,9 +98,9 @@ const Settings = () => {
               <ButtonRound variant='contained' color='primary' onClick={() => handleGotoCreate()}>
                 Cadastrar cliente
               </ButtonRound>
-              <ButtonRound style={{marginLeft: 20}} variant='contained' color='warning' onClick={() => handleUpdate()}>
+              {/*<ButtonRound style={{marginLeft: 20}} variant='contained' color='warning' onClick={() => handleUpdate()}>
                 Atualizar clientes
-              </ButtonRound>
+              </ButtonRound>*/}
             </>
           )}
         />

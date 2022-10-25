@@ -4,15 +4,24 @@ const Authentication = (firebase) => {
   const [authUser, setAuthUser] = useState(null);
   useEffect(() => {
     onAuthStateChanged(firebase.auth, (user) => {
-      setAuthUser(user ?? false);
+      if(user.uid === 'pdjzQc5CxGbJ9ZDgwGPwFxsOBgE3' || user.uid === 'mxG5BZs7hUd1qsas4wKH6Lh0fZg1')
+        setAuthUser(user);
+      else
+        setAuthUser(null);
     });
   }, []);
   const authenticate = (email, password) => {
     return signInWithEmailAndPassword(firebase.auth, email, password)
       .then((userCredential) => {
         const user = userCredential.user;
-        setAuthUser(user);
-        return [user, false];
+        if(user.uid === 'pdjzQc5CxGbJ9ZDgwGPwFxsOBgE3' || user.uid === 'mxG5BZs7hUd1qsas4wKH6Lh0fZg1') {
+          setAuthUser(user);
+          return [user, false];
+        } else {
+          signOut();
+          setAuthUser(null);
+          return [0, true];
+        }
       })
       .catch((error) => {
         const errorCode = error.code;

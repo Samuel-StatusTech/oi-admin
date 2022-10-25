@@ -32,13 +32,16 @@ const Login = () => {
     if (error) {
       setOpenAlert(true);
       setAlertMessage('Login Incorreto!');
-    } else {
-      history.push('/dashboard');
     }
     setLoading(false);
   };
+
   useEffect(() => {
-    if (authUser) history.push('/dashboard');
+    if (authUser) {
+      if(authUser.uid === 'pdjzQc5CxGbJ9ZDgwGPwFxsOBgE3' || authUser.uid === 'mxG5BZs7hUd1qsas4wKH6Lh0fZg1') {
+        history.push('/dashboard');
+      }
+    }
   }, [authUser]);
   return (
     <Container>
