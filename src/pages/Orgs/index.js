@@ -13,7 +13,7 @@ import axios from 'axios';
 
 const Settings = () => {
   const history = useHistory();
-  const { data } = ClientsService();
+  const { data, reload, removeClient } = ClientsService();
   useEffect(() => {
     if (data.length) setLoading(false);
   }, [data]);
@@ -46,9 +46,14 @@ const Settings = () => {
     {
       title: 'Ações',
       render: (dados) => (
-        <Button onClick={() => handleGotoEdit(dados)} variant='outlined' size='small' color='primary'>
-          Editar
-        </Button>
+        <>
+          <Button onClick={() => handleGotoEdit(dados)} variant='outlined' size='small' color='primary'>
+            Editar
+          </Button>
+          <Button onClick={() => handleDelete(dados)} style={{marginLeft: 10}} variant='outlined' size='small' color='secondary'>
+            Excluir
+          </Button>
+        </>
       ),
     },
   ];
@@ -58,6 +63,14 @@ const Settings = () => {
 
   const handleGotoEdit = (dados) => {
     history.push({ pathname: `/dashboard/organization/${dados.uid}`, state: dados.toJson() });
+  };
+
+  const handleDelete = async(dados) => {
+    if(window.confirm('Tem certeza que deseja excluir esse cliente?')) {
+      setLoading(true);
+      await removeClient(dados.uid);
+      reload();
+    }
   };
 
   const handleUpdate = async () => {

@@ -38,7 +38,7 @@ const Login = () => {
 
   useEffect(() => {
     if (authUser) {
-      if(authUser.uid === 'pdjzQc5CxGbJ9ZDgwGPwFxsOBgE3' || authUser.uid === 'mxG5BZs7hUd1qsas4wKH6Lh0fZg1') {
+      if(authUser.uid === 'mIx721WKurVotrfVmggEOqKYCfl1' || authUser.uid === 'mxG5BZs7hUd1qsas4wKH6Lh0fZg1') {
         history.push('/dashboard');
       }
     }

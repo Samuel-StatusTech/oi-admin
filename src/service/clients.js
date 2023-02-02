@@ -1,5 +1,5 @@
 import firebase from '../firebase';
-import { ref, onValue, set, update, push, child } from 'firebase/database';
+import { ref, onValue, set, get, update, push, child, remove } from 'firebase/database';
 import { useState, useEffect } from 'react';
 import Clients from '../models/Clients';
 
@@ -9,19 +9,25 @@ const ClientsService = () => {
   const load = ref(firebase.db, table);
 
   useEffect(() => {
-    onValue(load, (snapshot) => {
-      let clients = [];
+    reload();
+    return () => {
+      setData([]);
+    };
+  }, []);
+
+  const reload = async () => {
+    const clients = [];
+    const snapshot = await get(load);
+    if(snapshot.exists()) {
       const snapshotVal = snapshot.val();
       for (let i in snapshotVal) {
         const clientObj = Clients();
         clients.push(clientObj.fromJson({ uid: i, ...snapshotVal[i] }));
       }
       setData(clients);
-    });
-    return () => {
-      setData([]);
-    };
-  }, []);
+    }
+  }
+
   const save = (data, uid = null) => {
     let key = uid;
     if (!uid) {
@@ -31,6 +37,7 @@ const ClientsService = () => {
       .then(() => [key, false])
       .catch(() => [null, true]);
   };
+
   const saveUpdate = (data, uid = null) => {
     let key = uid;
     if (!uid) {
@@ -40,6 +47,17 @@ const ClientsService = () => {
       .then(() => [key, false])
       .catch(() => [null, true]);
   };
-  return { data, save, saveUpdate };
+
+  const removeClient = async (uid) => {
+    if(uid) {
+      const snapshot = await get(ref(firebase.db, `${table}/${uid}`));
+      if(snapshot.exists()) {
+        await set(ref(firebase.db, `removed/${table}/${uid}`), snapshot.val());
+        await remove(ref(firebase.db, `${table}/${uid}`))
+      }
+    }
+  };
+
+  return { data, save, saveUpdate, reload, removeClient };
 };
 export default ClientsService;
