@@ -175,7 +175,9 @@ const Organization = ({ history }) => {
       setDevices(state.devices);
       setCashless(state.cashless);
       setStatus(state.status);
-      setExpireAt(formatDateToMysqlDate(new Date(state.expireAt)));
+      const date = new Date(state.expireAt);
+      date.setHours(date.getHours() + 3);
+      setExpireAt(formatDateToMysqlDate(date));
       setEmail(state.email);
     }
     setLoading(false);
