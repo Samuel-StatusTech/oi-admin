@@ -45,6 +45,7 @@ const Authentication = (firebase) => {
     return signOut(firebase.auth)
       .then(() => {
         setAuthUser(null);
+        localStorage.removeItem('token');
         return [null, false];
       })
       .catch((error) => {

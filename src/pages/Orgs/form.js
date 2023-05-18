@@ -10,9 +10,12 @@ import {
   withStyles,
   Card,
   CardContent,
+  MenuItem,
+  Typography,
+  Divider,
 } from '@material-ui/core';
 import { formatDateToMysqlDate } from '../../utils/date';
-import { formatCNPJ } from './../../utils/utils';
+import { formatCNPJ, ufList } from './../../utils/utils';
 import ImagePicker from '../../components/ImagePicker';
 import ClientsService from './../../service/clients';
 import ManagersService from './../../service/managers';
@@ -21,8 +24,22 @@ import firebase from '../../firebase';
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import axios from 'axios';
 import sha1 from 'sha1';
+import { cellPhoneMask, percentageMask, removeMask } from '../../utils/mask';
+import FormECommerce from './formECommerce';
 
 const Organization = ({ history }) => {
+  const eCommerceDefault = {
+    adminTax: false,
+    adminTaxValue: 0,
+    adminTaxPercentage: 0,
+    chargeClient: false,
+    credit: false,
+    pix: false,
+    hasSplit: false,
+    splitValue: 0,
+    splitPercentage: 0,
+    gatewayToken: ''
+  };
   const { idOrg } = useParams();
   const [errorsVerify, setErrorsVerify] = useState({});
   const [action] = useState(idOrg === 'new');
@@ -33,6 +50,12 @@ const Organization = ({ history }) => {
   const [buttonLoading, setButtonLoading] = useState(false);
   const [logoFixed, setLogoFixed] = useState(state ? state.logoFixed: null);
   const [password, setPassword] = useState('');
+  const [taxes, setTaxes] = useState({
+    debit: 0,
+    credit: 0,
+    pix: 0
+  })
+  const [eCommerce, setECommerce] = useState(eCommerceDefault);
   // Usuário comum
   const [client, setClient] = useState({
     name: '',
@@ -40,8 +63,12 @@ const Organization = ({ history }) => {
     devices: 0,
     cashless: false,
     status: false,
+    hasECommerce: false,
     expireAt: formatDateToMysqlDate(new Date()),
     email: '',
+    uf:'',
+    city:'',
+    phone:'',
     uidUser: ''
   })
   const { createUser } = Authentication(firebase);
@@ -97,6 +124,8 @@ const Organization = ({ history }) => {
             expireAt: +new Date(client.expireAt),
             logoFixed: imageUrl,
             uidUser: user.uid,
+            taxes,
+            eCommerce
           });
           let [, error3] = await managersService.save(
             {
@@ -149,6 +178,8 @@ const Organization = ({ history }) => {
               uidUser: state.uidUser ?? null,
               createdAt: state.createdAt,
               expireAt: +new Date(client.expireAt),
+              taxes,
+              eCommerce
             },
             state.uid
           )
@@ -165,17 +196,16 @@ const Organization = ({ history }) => {
   const getData = () => {
     setLoading(true);
     if (state) {
+      const taxesVal = state?.taxes ?? {};
+      const eCommerceVal = state?.eCommerce ?? {};
       const date = new Date(state.expireAt);
       date.setHours(date.getHours() + 3);
       setClient({
-        name: state.name,
-        CNPJ:state.CNPJ,
-        devices:state.devices,
-        cashless:state.cashless,
-        status: state.status,
+        ...state,
         expireAt:formatDateToMysqlDate(date),
-        email:state.email
       });
+      setTaxes(taxesVal);
+      setECommerce(eCommerceVal);
     }
     setLoading(false);
   };
@@ -261,10 +291,55 @@ const Organization = ({ history }) => {
                     name='CNPJ'
                     value={formatCNPJ(client.CNPJ)}
                     onChange={(e) => {
-                      setClient({...client, CNPJ: e.target.value?.replace(/\D/g, '')})
+                      setClient({...client, CNPJ: removeMask(e.target.value)})
                     }}
                     error={Boolean(errorsVerify?.cnpj)}
                     helperText={errorsVerify?.cnpj}
+                    variant='outlined'
+                    size='small'
+                    fullWidth
+                  />
+                </Grid>
+                <Grid item xs={4}>
+                  <TextField
+                    label='UF'
+                    name='uf'
+                    value={client.uf}
+                    onChange={(e) => setClient({...client, uf: e.target.value})}
+                    variant='outlined'
+                    size='small'
+                    fullWidth
+                    select
+                  >
+                    {ufList.map((item) => <MenuItem value={item}>{item}</MenuItem>)}
+                  </TextField>
+                </Grid>
+                <Grid item xs={8}>
+                  <TextField
+                    label='Cidade'
+                    name='city'
+                    value={client.city}
+                    onChange={(e) => {
+                      const value = e.target.value.slice(0, 255);
+                      setClient({...client, city: value})
+                    }}
+                    error={Boolean(errorsVerify?.city)}
+                    helperText={errorsVerify?.city}
+                    variant='outlined'
+                    size='small'
+                    fullWidth
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <TextField
+                    label='Telefone'
+                    name='phone'
+                    value={cellPhoneMask(client.phone)}
+                    onChange={(e) => {
+                      setClient({...client, phone: removeMask(e.target.value)})
+                    }}
+                    error={Boolean(errorsVerify?.phone)}
+                    helperText={errorsVerify?.phone}
                     variant='outlined'
                     size='small'
                     fullWidth
@@ -344,6 +419,45 @@ const Organization = ({ history }) => {
               setImage={setLogoFixed}
             />
             </Grid>
+            <Grid item xs={4}>
+              <TextField
+                label='Taxa PIX'
+                 name='pix'
+                value={percentageMask(taxes.pix)}
+                onChange={(e) => setTaxes({...taxes, pix: removeMask(e.target.value)})}
+                error={Boolean(errorsVerify?.taxes?.pix)}
+                helperText={errorsVerify?.taxes?.pix}
+                variant='outlined'
+                size='small'
+                fullWidth
+              />
+            </Grid>
+            <Grid item xs={4}>
+              <TextField
+                label='Taxa crédito'
+                name='credit'
+                value={percentageMask(taxes.credit)}
+                onChange={(e) => setTaxes({...taxes, credit: removeMask(e.target.value)})}
+                error={Boolean(errorsVerify?.taxes?.credit)}
+                helperText={errorsVerify?.taxes?.credit}
+                variant='outlined'
+                size='small'
+                fullWidth
+                />
+            </Grid>
+            <Grid item xs={4}>
+              <TextField
+                label='Taxa débito'
+                name='debit'
+                value={percentageMask(taxes.debit)}
+                onChange={(e) => setTaxes({...taxes, debit: removeMask(e.target.value)})}
+                error={Boolean(errorsVerify?.taxes?.debit)}
+                helperText={errorsVerify?.taxes?.debit}
+                variant='outlined'
+                size='small'
+                fullWidth
+                />
+            </Grid>
             <Grid item lg={12} md={12} sm={12} xs={12}>
               <Grid container spacing={2}>
                 <Grid item>
@@ -362,8 +476,23 @@ const Organization = ({ history }) => {
                     control={<GreenSwitch checked={client.status} onChange={(e) => setClient({...client, status: e.target.checked})} />}
                   />
                 </Grid>
+                <Grid item>
+                  <FormControlLabel
+                    label='Loja virtual'
+                    name='hasEcommerce'
+                    value={client.hasECommerce}
+                    control={<GreenSwitch checked={client.hasECommerce} onChange={(e) => {setClient({...client, hasECommerce: e.target.checked}); setECommerce(eCommerceDefault)}} />}
+                  />
+                </Grid>
               </Grid>
             </Grid>
+            {client.hasECommerce && (<>
+              <Grid item xs={12}>
+                <Typography style={{ fontWeight: 'bold' }}>CONFIGURAÇÃO LOJA VIRTUAL</Typography>
+                <Divider />
+              </Grid>
+              <FormECommerce data={eCommerce} setData={setECommerce} />
+            </>)}
             <Grid item lg={12} md={12} sm={12} xs={12}>
               <Grid container spacing={2}>
                 <Grid item>

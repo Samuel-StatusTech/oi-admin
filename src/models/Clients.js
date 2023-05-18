@@ -10,6 +10,13 @@ function Clients() {
   let email;
   let uidUser;
   let logoFixed;
+  let uf;
+  let city;
+  let phone;
+  let taxes;
+  let eCommerce;
+  let hasECommerce; 
+
   function fromJson(json) {
     this.uid = json['uid'];
     this.CNPJ = json['CNPJ'];
@@ -22,6 +29,12 @@ function Clients() {
     this.email = json['email'];
     this.uidUser = json['uidUser'];
     this.logoFixed = json['logoFixed'];
+    this.uf = json['uf'];
+    this.city = json['city'];
+    this.phone = json['phone'];
+    this.taxes = json['taxes'];
+    this.eCommerce = json['eCommerce'];
+    this.hasECommerce = json['hasECommerce'];
     return this;
   }
   function toJson() {
@@ -36,9 +49,15 @@ function Clients() {
       status: this.status,
       email: this.email,
       uidUser: this.uidUser,
-      logoFixed: this.logoFixed
+      logoFixed: this.logoFixed,
+      uf: this.uf,
+      city: this.city,
+      phone: this.phone,
+      taxes: this.taxes,
+      eCommerce: this.eCommerce,
+      hasECommerce: this.hasECommerce,
     };
   }
-  return { uid, CNPJ, cashless, createdAt, devices, expireAt, name, status, email, uidUser, fromJson, toJson, logoFixed };
+  return { uid, CNPJ, cashless, createdAt, devices, expireAt, name, status, email, uidUser, uf, city, phone, taxes, eCommerce, hasECommerce, fromJson, toJson, logoFixed };
 }
 export default Clients;
