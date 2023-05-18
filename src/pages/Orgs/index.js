@@ -10,14 +10,18 @@ import { formatCNPJ } from './../../utils/utils';
 import firebase from '../../firebase';
 import { ref, onValue } from "firebase/database";
 import axios from 'axios';
-
+import ModalPassword from './changePassword';
 const Settings = () => {
   const history = useHistory();
   const { data, reload, removeClient } = ClientsService();
   useEffect(() => {
     if (data.length) setLoading(false);
   }, [data]);
+  const [showModal, setShowModal] = useState(false);
+  const [password, setPassword] = useState('');
+  const [userId, setUserId] = useState('');
   const [loading, setLoading] = useState(true);
+  
   const columns = [
     { title: 'Cliente', field: 'name' },
     {
@@ -53,6 +57,10 @@ const Settings = () => {
           <Button onClick={() => handleDelete(dados)} style={{marginLeft: 10}} variant='outlined' size='small' color='secondary'>
             Excluir
           </Button>
+          <Button onClick={() => handleChangePassword(dados.uidUser)} style={{marginLeft: 10}} variant='outlined' size='small' color='primary'>
+            Mudar Senha
+          </Button>
+
         </>
       ),
     },
@@ -72,7 +80,16 @@ const Settings = () => {
       reload();
     }
   };
+  
+  const closeModal = () => {
+    setShowModal(false);
+    setPassword('');
+  }
 
+  const handleChangePassword = (id) => {
+    setUserId(id);
+    setShowModal(true);
+  };
   const handleUpdate = async () => {
     setLoading(true)
     onValue(ref(firebase.db, '/Clients'), async (snapshot) => {
@@ -102,6 +119,7 @@ const Settings = () => {
     </Grid>
   ) : (
     <Grid container spacing={2}>
+      <ModalPassword show={showModal} onClose={closeModal} password={password} setPassword={setPassword} userId={userId} />
       <Grid item lg={12} md={12} sm={12} xs={12}>
         <EaseGrid
           columns={columns}

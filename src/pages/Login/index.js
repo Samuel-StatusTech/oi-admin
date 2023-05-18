@@ -8,6 +8,7 @@ import InputPassword from '../../components/Input/Password';
 
 import Authentication from '../../service/auth';
 import firebase from '../../firebase';
+import Api from '../../api';
 const Container = styled.div`
   display: flex;
   justify-content: center;
@@ -33,15 +34,25 @@ const Login = () => {
       setOpenAlert(true);
       setAlertMessage('Login Incorreto!');
     }
+    
     setLoading(false);
   };
-
-  useEffect(() => {
-    if (authUser) {
-      if(authUser.uid === 'mIx721WKurVotrfVmggEOqKYCfl1' || authUser.uid === 'mxG5BZs7hUd1qsas4wKH6Lh0fZg1') {
-        history.push('/dashboard');
+  const getToken = async(user) => {
+    
+    if(user && (user.uid === 'mIx721WKurVotrfVmggEOqKYCfl1' || authUser.uid === 'mxG5BZs7hUd1qsas4wKH6Lh0fZg1')) {
+      const { data, status, statusText } = await Api.post('/authenticateDash', {
+          userKey: user.uid
+      });
+      if (status === 200 && data.success) {
+          localStorage.setItem('token', data.token);
+          history.push('/dashboard');
+      } else {
+        alert(data?.message ?? statusText);
       }
     }
+  }
+  useEffect(() => {
+    getToken(authUser);
   }, [authUser]);
   return (
     <Container>

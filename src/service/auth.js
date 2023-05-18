@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { signInWithEmailAndPassword, signOut, onAuthStateChanged, createUserWithEmailAndPassword } from 'firebase/auth';
+import Api from '../api';
 const Authentication = (firebase) => {
   const [authUser, setAuthUser] = useState(null);
   useEffect(() => {
