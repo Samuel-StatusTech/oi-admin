@@ -27,20 +27,23 @@ const Organization = ({ history }) => {
   const [errorsVerify, setErrorsVerify] = useState({});
   const [action] = useState(idOrg === 'new');
   const { state } = history.location;
-  const [logoFixed, setLogoFixed] = useState(state ? state.logoFixed : null);
   const clientsService = ClientsService();
   const managersService = ManagersService();
   const [loading, setLoading] = useState(false);
   const [buttonLoading, setButtonLoading] = useState(false);
-  // Usuário comum
-  const [name, setName] = useState('');
-  const [cnpj, setCnpj] = useState('');
-  const [devices, setDevices] = useState(0);
-  const [cashless, setCashless] = useState(false);
-  const [status, setStatus] = useState(false);
-  const [expireAt, setExpireAt] = useState(formatDateToMysqlDate(new Date()));
-  const [email, setEmail] = useState('');
+  const [logoFixed, setLogoFixed] = useState(state ? state.logoFixed: null);
   const [password, setPassword] = useState('');
+  // Usuário comum
+  const [client, setClient] = useState({
+    name: '',
+    CNPJ: '',
+    devices: 0,
+    cashless: false,
+    status: false,
+    expireAt: formatDateToMysqlDate(new Date()),
+    email: '',
+    uidUser: ''
+  })
   const { createUser } = Authentication(firebase);
   const errors = {
     'auth/email-already-in-use': 'E-mail já existente!',
@@ -64,6 +67,7 @@ const Organization = ({ history }) => {
   }, []);
 
   const handleLogoImage = async (callback) => {
+    const logoFixed = client.logoFixed;
     if(!logoFixed) {
       callback('');
     } else if(typeof logoFixed === 'string') {
@@ -82,26 +86,21 @@ const Organization = ({ history }) => {
   const handleSave = async () => {
     try {
       setButtonLoading(true);
-      let [user, error1] = await createUser(email, password);
+      let [user, error1] = await createUser(client.email, password);
       if (!error1) {
         handleLogoImage(async (imageUrl) => {
           const dbName = `DB${sha1(Math.random())}`;
           let [uid, error2] = await clientsService.save({
-            name,
-            dbName,
-            CNPJ: cnpj?.replace(/\D/g, ''),
-            devices,
-            cashless,
-            status,
+            ...client,
+            dbName, 
             createdAt: +new Date(),
-            expireAt: +new Date(expireAt),
-            email,
+            expireAt: +new Date(client.expireAt),
             logoFixed: imageUrl,
             uidUser: user.uid,
           });
           let [, error3] = await managersService.save(
             {
-              email,
+              email: client.email,
               uid: user.uid,
               client: uid,
               dbName,
@@ -143,17 +142,13 @@ const Organization = ({ history }) => {
         if (
           await clientsService.saveUpdate(
             {
+              ...client,
               uid: state.uid,
-              name,
-              CNPJ: cnpj?.replace(/\D/g, ''),
-              devices,
-              cashless,
-              status,
               email: state.email ?? null,
               logoFixed: imageUrl,
               uidUser: state.uidUser ?? null,
               createdAt: state.createdAt,
-              expireAt: +new Date(expireAt),
+              expireAt: +new Date(client.expireAt),
             },
             state.uid
           )
@@ -170,15 +165,17 @@ const Organization = ({ history }) => {
   const getData = () => {
     setLoading(true);
     if (state) {
-      setName(state.name);
-      setCnpj(formatCNPJ(state.CNPJ));
-      setDevices(state.devices);
-      setCashless(state.cashless);
-      setStatus(state.status);
       const date = new Date(state.expireAt);
       date.setHours(date.getHours() + 3);
-      setExpireAt(formatDateToMysqlDate(date));
-      setEmail(state.email);
+      setClient({
+        name: state.name,
+        CNPJ:state.CNPJ,
+        devices:state.devices,
+        cashless:state.cashless,
+        status: state.status,
+        expireAt:formatDateToMysqlDate(date),
+        email:state.email
+      });
     }
     setLoading(false);
   };
@@ -209,10 +206,10 @@ const Organization = ({ history }) => {
     return false;
   };
   const verifyInputs = () => {
-    return nameInputVerify(name) || cnpjVerify(cnpj ?? '') || emailInputVerify(email) || passwordInputVerify(password);
+    return nameInputVerify(client.name) || cnpjVerify(client.CNPJ ?? '') || emailInputVerify(client.email) || passwordInputVerify(password);
   };
   const verifyInputsEdit = () => {
-    return nameInputVerify(name) || cnpjVerify(cnpj ?? '');
+    return nameInputVerify(client.name) || cnpjVerify(client.CNPJ ?? '');
   };
   const handleSubmit = () => {
     try {
@@ -244,10 +241,10 @@ const Organization = ({ history }) => {
                   <TextField
                     label='Nome ou Razão Social'
                     name='name'
-                    value={name}
+                    value={client.name}
                     onChange={(e) => {
                       const value = e.target.value.slice(0, 80);
-                      setName(value);
+                      setClient({...client, name: value})
                       nameInputVerify(value);
                     }}
                     error={Boolean(errorsVerify?.name)}
@@ -262,10 +259,9 @@ const Organization = ({ history }) => {
                   <TextField
                     label='CNPJ'
                     name='CNPJ'
-                    value={cnpj}
+                    value={formatCNPJ(client.CNPJ)}
                     onChange={(e) => {
-                      const value = formatCNPJ(e.target.value);
-                      setCnpj(value);
+                      setClient({...client, CNPJ: e.target.value?.replace(/\D/g, '')})
                     }}
                     error={Boolean(errorsVerify?.cnpj)}
                     helperText={errorsVerify?.cnpj}
@@ -278,8 +274,8 @@ const Organization = ({ history }) => {
                   <TextField
                     label='Número de dispositivos'
                     name='devices'
-                    value={devices}
-                    onChange={(e) => setDevices(e.target.value)}
+                    value={client.devices}
+                    onChange={(e) => setClient({...client, devices: e.target.value})}
                     variant='outlined'
                     type='number'
                     size='small'
@@ -293,8 +289,8 @@ const Organization = ({ history }) => {
                   <TextField
                     label='Data de vencimento'
                     name='devices'
-                    value={expireAt}
-                    onChange={(e) => setExpireAt(e.target.value)}
+                    value={client.expireAt}
+                    onChange={(e) => setClient({...client, expireAt: e.target.value})}
                     variant='outlined'
                     type='date'
                     size='small'
@@ -305,10 +301,10 @@ const Organization = ({ history }) => {
                   <TextField
                     label='E-mail'
                     name='email'
-                    value={email}
+                    value={client.email}
                     onChange={(e) => {
                       const value = e.target.value;
-                      setEmail(value);
+                      setClient({...client, email: value})
                       emailInputVerify(value);
                     }}
                     error={Boolean(errorsVerify?.email)}
@@ -320,7 +316,7 @@ const Organization = ({ history }) => {
                     fullWidth
                   />
                 </Grid>
-                <Grid item xs={12}>
+                {action && <Grid item xs={12}>
                   <TextField
                     label='Senha'
                     name='password'
@@ -335,10 +331,9 @@ const Organization = ({ history }) => {
                     variant='outlined'
                     size='small'
                     type='password'
-                    disabled={!action}
                     fullWidth
-                  />
-                </Grid>
+                  /> 
+                </Grid>}
               </Grid>
             </Grid>
             <Grid item xl={6} lg={6} md={6} sm={12} xs={12}>
@@ -355,16 +350,16 @@ const Organization = ({ history }) => {
                   <FormControlLabel
                     label='Permitido uso de cashless'
                     name='cashless'
-                    value={cashless}
-                    control={<GreenSwitch checked={cashless} onChange={(e) => setCashless(e.target.checked)} />}
+                    value={client.cashless}
+                    control={<GreenSwitch checked={client.cashless} onChange={(e) => setClient({...client, cashless: e.target.checked})} />}
                   />
                 </Grid>
                 <Grid item>
                   <FormControlLabel
                     label='Status'
                     name='status'
-                    value={status}
-                    control={<GreenSwitch checked={status} onChange={(e) => setStatus(e.target.checked)} />}
+                    value={client.status}
+                    control={<GreenSwitch checked={client.status} onChange={(e) => setClient({...client, status: e.target.checked})} />}
                   />
                 </Grid>
               </Grid>
