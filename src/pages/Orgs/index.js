@@ -50,7 +50,7 @@ const Settings = () => {
     {
       title: 'Ações',
       render: (dados) => (
-        <>
+        <Grid direction='row'>
           <Button onClick={() => handleGotoEdit(dados)} variant='outlined' size='small' color='primary'>
             Editar
           </Button>
@@ -61,7 +61,7 @@ const Settings = () => {
             Mudar Senha
           </Button>
 
-        </>
+        </Grid>
       ),
     },
   ];
