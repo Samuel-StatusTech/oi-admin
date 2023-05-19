@@ -58,6 +58,6 @@ function Clients() {
       hasECommerce: this.hasECommerce,
     };
   }
-  return { uid, CNPJ, cashless, createdAt, devices, expireAt, name, status, email, uidUser, uf, city, phone, taxes, eCommerce, hasECommerce, fromJson, toJson, logoFixed };
+  return { uid, CNPJ, cashless, createdAt, devices, expireAt, name, status, email, uidUser, uf, city, phone, taxes, eCommerce, hasECommerce, logoFixed, fromJson, toJson };
 }
 export default Clients;

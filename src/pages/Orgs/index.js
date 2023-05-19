@@ -11,6 +11,7 @@ import firebase from '../../firebase';
 import { ref, onValue } from "firebase/database";
 import axios from 'axios';
 import ModalPassword from './changePassword';
+import { formatDate } from '../../utils/date';
 const Settings = () => {
   const history = useHistory();
   const { data, reload, removeClient } = ClientsService();
@@ -31,6 +32,15 @@ const Settings = () => {
         return formatCNPJ(CNPJ);
       },
     },
+    {
+      title: 'Data expiração',
+      field: 'expireAt',
+      render: ({ expireAt }) => {
+        const date = new Date(expireAt);
+        date.setHours(date.getHours() + 3);
+        return formatDate(date);
+      },
+    },
     { title: 'E-mail', field: 'email' },
     {
       title: 'Status',
@@ -49,6 +59,7 @@ const Settings = () => {
     },
     {
       title: 'Ações',
+      width: "20%",
       render: (dados) => (
         <Grid direction='row'>
           <Button onClick={() => handleGotoEdit(dados)} variant='outlined' size='small' color='primary'>
@@ -134,6 +145,7 @@ const Settings = () => {
               </ButtonRound>*/}
             </>
           )}
+          config={{pageConfig: {paging:false}}}
         />
       </Grid>
     </Grid>

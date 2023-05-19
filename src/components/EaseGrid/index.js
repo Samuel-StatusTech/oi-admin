@@ -66,7 +66,7 @@ const EaseGrid = ({
           icons={tableIcons}
           options={{
             actionsColumnIndex: actionsRight ? -1 : 0,
-            paging: true,
+            paging: pageConfig?.paging ?? true,
             pageSizeOptions: [5, 10, 15, 20],
             pageSize,
             padding: 'dense',

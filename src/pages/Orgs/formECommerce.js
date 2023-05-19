@@ -23,7 +23,7 @@ const FormECommerce = ({data, setData}) => {
     }
     return (
         <>
-             <Grid item md={2} xs={12}>
+            <Grid item md={2} xs={12}>
                 <FormControlLabel
                     label='Cobrar do cliente'
                     name='cashless'
@@ -36,10 +36,10 @@ const FormECommerce = ({data, setData}) => {
                     label='Taxa administrativa'
                     name='adminTax'
                     value={data.adminTax}
-                    control={<GreenSwitch checked={data.adminTax} onChange={(e) => setData({...data, adminTaxValue: 0, adminTaxPercentage: 0,  adminTax: e.target.checked})} />}
+                    control={<GreenSwitch checked={data.adminTax} onChange={(e) => setData({...data, adminTaxValue: 0, adminTaxPercentage: 0, adminTaxMinimum: 0, adminTax: e.target.checked})} />}
                 />
             </Grid>
-            {data.adminTax && (<><Grid item md={4} xs={12}>
+            {data.adminTax && (<><Grid item md={3} xs={12}>
                 <TextField
                     label='Taxa (R$)'
                     name='adminTaxValue'
@@ -51,12 +51,24 @@ const FormECommerce = ({data, setData}) => {
                     fullWidth
                 />
             </Grid>
-            <Grid item md={4} xs={12}>
+            <Grid item md={2} xs={12}>
                 <TextField
                     label='Taxa (%)'
                     name='adminTaxPercentage'
                     value={percentageMask(data.adminTaxPercentage)}
                     onChange={(e) => handleChangeOpposite(e, 'adminTaxValue')}
+                    variant='outlined'
+                    type='text'
+                    size='small'
+                    fullWidth
+                />
+            </Grid>
+            <Grid item md={3} xs={12}>
+                <TextField
+                    label='Taxa Mínima (R$)'
+                    name='adminTaxPercentage'
+                    value={currencyMask(data?.adminTaxMinimum)}
+                    onChange={(e) => setData({...data, adminTaxMinimum: removeMask(e.target.value)})}
                     variant='outlined'
                     type='text'
                     size='small'

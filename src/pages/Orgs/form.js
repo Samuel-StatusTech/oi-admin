@@ -32,6 +32,7 @@ const Organization = ({ history }) => {
     adminTax: false,
     adminTaxValue: 0,
     adminTaxPercentage: 0,
+    adminTaxMinimum: 0,
     chargeClient: false,
     credit: false,
     pix: false,
@@ -154,14 +155,15 @@ const Organization = ({ history }) => {
             throw new Error('Erro ao cadastrar no banco');
           }
         })
+        setButtonLoading(false);
       } else {
+        setButtonLoading(false);
         throw new Error(errors[user]);
       }
     } catch (error) {
       alert(error?.message ?? 'Ocorreu um erro');
-    } finally {
       setButtonLoading(false);
-    }
+    } 
   };
 
   const handleEdit = async () => {
@@ -187,11 +189,11 @@ const Organization = ({ history }) => {
           history.goBack();
         }
       })
+      setButtonLoading(false);
     } catch (error) {
       alert(error?.message ?? 'Ocorreu um erro');
-    } finally {
       setButtonLoading(false);
-    }
+    } 
   };
   const getData = () => {
     setLoading(true);
@@ -236,10 +238,10 @@ const Organization = ({ history }) => {
     return false;
   };
   const verifyInputs = () => {
-    return nameInputVerify(client.name) || cnpjVerify(client.CNPJ ?? '') || emailInputVerify(client.email) || passwordInputVerify(password);
+    return !client.uf || nameInputVerify(client.name) || cnpjVerify(client.CNPJ ?? '') || emailInputVerify(client.email) || passwordInputVerify(password);
   };
   const verifyInputsEdit = () => {
-    return nameInputVerify(client.name) || cnpjVerify(client.CNPJ ?? '');
+    return !client.uf || nameInputVerify(client.name) || cnpjVerify(client.CNPJ ?? '');
   };
   const handleSubmit = () => {
     try {
