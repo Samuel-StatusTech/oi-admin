@@ -41,6 +41,11 @@ const Organization = ({ history }) => {
     splitPercentage: 0,
     gatewayToken: ''
   };
+  const taxesDefault = {
+    debit: 0,
+    credit: 0,
+    pix: 0
+  }
   const { idOrg } = useParams();
   const [errorsVerify, setErrorsVerify] = useState({});
   const [action] = useState(idOrg === 'new');
@@ -51,11 +56,7 @@ const Organization = ({ history }) => {
   const [buttonLoading, setButtonLoading] = useState(false);
   const [logoFixed, setLogoFixed] = useState(state ? state.logoFixed: null);
   const [password, setPassword] = useState('');
-  const [taxes, setTaxes] = useState({
-    debit: 0,
-    credit: 0,
-    pix: 0
-  })
+  const [taxes, setTaxes] = useState(taxesDefault)
   const [eCommerce, setECommerce] = useState(eCommerceDefault);
   // Usuário comum
   const [client, setClient] = useState({
@@ -198,8 +199,8 @@ const Organization = ({ history }) => {
   const getData = () => {
     setLoading(true);
     if (state) {
-      const taxesVal = state?.taxes ?? {};
-      const eCommerceVal = state?.eCommerce ?? {};
+      const taxesVal = state?.taxes ?? taxesDefault;
+      const eCommerceVal = state?.eCommerce ?? eCommerceDefault;
       const date = new Date(state.expireAt);
       date.setHours(date.getHours() + 3);
       setClient({

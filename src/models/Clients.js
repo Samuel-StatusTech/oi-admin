@@ -1,21 +1,21 @@
 function Clients() {
-  let uid;
-  let CNPJ;
+  let uid = '';
+  let CNPJ = '';
   let cashless;
   let createdAt;
   let devices = 0;
   let expireAt;
-  let name;
+  let name = '';
   let status;
   let email;
-  let uidUser;
+  let uidUser = '';
   let logoFixed;
-  let uf;
-  let city;
-  let phone;
+  let uf = '';
+  let city = '';
+  let phone = '';
   let taxes;
   let eCommerce;
-  let hasECommerce; 
+  let hasECommerce = false; 
 
   function fromJson(json) {
     this.uid = json['uid'];
@@ -29,12 +29,12 @@ function Clients() {
     this.email = json['email'];
     this.uidUser = json['uidUser'];
     this.logoFixed = json['logoFixed'];
-    this.uf = json['uf'];
-    this.city = json['city'];
-    this.phone = json['phone'];
+    this.uf = json['uf'] ?? this.uf;
+    this.city = json['city'] ?? this.city;
+    this.phone = json['phone'] ?? this.phone;
     this.taxes = json['taxes'];
     this.eCommerce = json['eCommerce'];
-    this.hasECommerce = json['hasECommerce'];
+    this.hasECommerce = json['hasECommerce'] ?? this.hasECommerce;
     return this;
   }
   function toJson() {
