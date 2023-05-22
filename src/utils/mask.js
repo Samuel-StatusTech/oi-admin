@@ -43,3 +43,19 @@ export const valueMask = (value, prefix, suffix) => {
 
     return `${prefix}${value}${suffix}`;
 }
+export const cpfCnpjMask = (cpf) => {
+  cpf=cpf.replace(/\D/g,"")
+  if(cpf.length <= 11) {
+      cpf=cpf.replace(/(\d{3})(\d)/,"$1.$2")
+      cpf=cpf.replace(/(\d{3})(\d)/,"$1.$2")
+      cpf=cpf.replace(/(\d{3})(\d{1,2})$/,"$1-$2")
+  } else {
+      cpf=cpf.substring(0, 14)
+      cpf=cpf.replace(/(\d{2})(\d)/,"$1.$2")
+      cpf=cpf.replace(/(\d{3})(\d)/,"$1.$2")
+      cpf=cpf.replace(/(\d{3})(\d)/,"$1/$2")
+      cpf=cpf.replace(/(\d{4})(\d{1,2})$/,"$1-$2")
+  }
+
+  return cpf
+}

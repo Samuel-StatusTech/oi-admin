@@ -15,7 +15,7 @@ import {
   Divider,
 } from '@material-ui/core';
 import { formatDateToMysqlDate } from '../../utils/date';
-import { formatCNPJ, ufList } from './../../utils/utils';
+import { ufList } from './../../utils/utils';
 import ImagePicker from '../../components/ImagePicker';
 import ClientsService from './../../service/clients';
 import ManagersService from './../../service/managers';
@@ -24,7 +24,7 @@ import firebase from '../../firebase';
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import axios from 'axios';
 import sha1 from 'sha1';
-import { cellPhoneMask, percentageMask, removeMask } from '../../utils/mask';
+import { cellPhoneMask, cpfCnpjMask, percentageMask, removeMask } from '../../utils/mask';
 import FormECommerce from './formECommerce';
 
 const Organization = ({ history }) => {
@@ -216,26 +216,27 @@ const Organization = ({ history }) => {
     return !str || str.length === 0;
   };
   const nameInputVerify = (name) => {
-    if (isEmpty(name)) return (errorsVerify.name = 'É necessário preencher este campo');
-    errorsVerify.name = null;
+    if (isEmpty(name)) {setErrorsVerify({...errorsVerify, name: 'É necessário preencher este campo'}); return true;}
+    setErrorsVerify({...errorsVerify, name: null});
     return false;
   };
   const cnpjVerify = (cnpj) => {
-    if (!/^[0-9]{14}$/.test(cnpj.replace(/\D+/g, ''))) return (errorsVerify.cnpj = 'É necessário preencher este campo');
-    errorsVerify.cnpj = null;
+    const length = removeMask(cnpj)?.length;
+    if (length != 14 && length != 11){setErrorsVerify({...errorsVerify, cnpj: 'É necessário preencher este campo'}); return true;} 
+    setErrorsVerify({...errorsVerify, cnpj: null});
     return false;
   };
   const emailInputVerify = (email) => {
-    if (isEmpty(email)) return (errorsVerify.email = 'É necessário preencher este campo');
+    if (isEmpty(email)) {setErrorsVerify({...errorsVerify, email: 'É necessário preencher este campo'}); return true }
     if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(email))
-      return (errorsVerify.email = 'Endereço de email inválido');
-    errorsVerify.email = null;
+      {setErrorsVerify({...errorsVerify, email: 'Endereço de email inválido'}); return true;}
+    setErrorsVerify({...errorsVerify, email: null});
     return false;
   };
   const passwordInputVerify = (password) => {
-    if (!/^\S{4,}/.test(password)) return (errorsVerify.password = 'Mínimo 4 caracteres');
-    if (!/^\S*$/i.test(password)) return (errorsVerify.password = 'Não pode espaço em branco no campo');
-    errorsVerify.password = null;
+    if (!/^\S{4,}/.test(password)) {setErrorsVerify({...errorsVerify, password: 'Mínimo 4 caracteres'}); return true;} 
+    if (!/^\S*$/i.test(password)) {setErrorsVerify({...errorsVerify, password: 'Não pode espaço em branco no campo'}); return true;}
+    setErrorsVerify({...errorsVerify, password: null});
     return false;
   };
   const verifyInputs = () => {
@@ -290,9 +291,9 @@ const Organization = ({ history }) => {
 
                 <Grid item xs={12}>
                   <TextField
-                    label='CNPJ'
+                    label='CPF/CNPJ'
                     name='CNPJ'
-                    value={formatCNPJ(client.CNPJ)}
+                    value={cpfCnpjMask(client.CNPJ)}
                     onChange={(e) => {
                       setClient({...client, CNPJ: removeMask(e.target.value)})
                     }}

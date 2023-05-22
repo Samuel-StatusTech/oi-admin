@@ -6,12 +6,12 @@ import EaseGrid from '../../components/EaseGrid';
 import ButtonRound from '../../components/ButtonRound';
 import { Check, Close } from '@material-ui/icons';
 import ClientsService from './../../service/clients';
-import { formatCNPJ } from './../../utils/utils';
 import firebase from '../../firebase';
 import { ref, onValue } from "firebase/database";
 import axios from 'axios';
 import ModalPassword from './changePassword';
 import { formatDate } from '../../utils/date';
+import { cpfCnpjMask } from '../../utils/mask';
 const Settings = () => {
   const history = useHistory();
   const { data, reload, removeClient } = ClientsService();
@@ -26,10 +26,10 @@ const Settings = () => {
   const columns = [
     { title: 'Cliente', field: 'name' },
     {
-      title: 'CNPJ',
+      title: 'CPF/CNPJ',
       field: 'CNPJ',
       render: ({ CNPJ }) => {
-        return formatCNPJ(CNPJ);
+        return cpfCnpjMask(CNPJ);
       },
     },
     {
