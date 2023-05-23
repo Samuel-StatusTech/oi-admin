@@ -1,5 +1,6 @@
 import React from 'react';
 import Orgs, { Icon as OrgsIcon } from '../pages/Orgs';
+import Imei from '../pages/Imei';
 import OrgsForm from '../pages/Orgs/form';
 export default [
   {
@@ -22,6 +23,21 @@ export default [
           {
             title: 'Configuração',
             route: '/organization',
+          },
+          {
+            title: 'Clientes',
+            route: '/organization',
+          },
+        ],
+      },
+      {
+        title: 'IMEI',
+        path: '/imei',
+        content: <Imei />,
+        paths: [
+          {
+            title: 'IMEI',
+            route: '/imei',
           },
           {
             title: 'Clientes',
