@@ -71,7 +71,8 @@ const Organization = ({ history }) => {
     uf:'',
     city:'',
     phone:'',
-    uidUser: ''
+    uidUser: '',
+    corporateName: ''
   })
   const { createUser } = Authentication(firebase);
   const errors = {
@@ -273,7 +274,7 @@ const Organization = ({ history }) => {
               <Grid container spacing={2}>
                 <Grid item xs={12}>
                   <TextField
-                    label='Nome ou Razão Social'
+                    label='Nome Fantasia'
                     name='name'
                     value={client.name}
                     onChange={(e) => {
@@ -288,7 +289,22 @@ const Organization = ({ history }) => {
                     fullWidth
                   />
                 </Grid>
-
+                <Grid item xs={12}>
+                  <TextField
+                    label='Razão Social'
+                    name='corporateName'
+                    value={client.corporateName}
+                    onChange={(e) => {
+                      const value = e.target.value.slice(0, 100);
+                      setClient({...client, corporateName: value})
+                    }}
+                    error={Boolean(errorsVerify?.corporateName)}
+                    helperText={errorsVerify?.corporateName}
+                    variant='outlined'
+                    size='small'
+                    fullWidth
+                  />
+                </Grid>
                 <Grid item xs={12}>
                   <TextField
                     label='CPF/CNPJ'

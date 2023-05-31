@@ -14,6 +14,7 @@ function Clients() {
   let city = '';
   let phone = '';
   let taxes;
+  let corporateName = '';
   let eCommerce;
   let hasECommerce = false; 
 
@@ -35,6 +36,7 @@ function Clients() {
     this.taxes = json['taxes'];
     this.eCommerce = json['eCommerce'];
     this.hasECommerce = json['hasECommerce'] ?? this.hasECommerce;
+    this.corporateName = json['corporateName'] ?? '';
     return this;
   }
   function toJson() {
@@ -56,8 +58,9 @@ function Clients() {
       taxes: this.taxes,
       eCommerce: this.eCommerce,
       hasECommerce: this.hasECommerce,
+      corporateName: this.corporateName
     };
   }
-  return { uid, CNPJ, cashless, createdAt, devices, expireAt, name, status, email, uidUser, uf, city, phone, taxes, eCommerce, hasECommerce, logoFixed, fromJson, toJson };
+  return { uid, CNPJ, cashless, createdAt, devices, expireAt, name, status, email, uidUser, uf, city, phone, taxes, eCommerce, hasECommerce, logoFixed, corporateName, fromJson, toJson };
 }
 export default Clients;
