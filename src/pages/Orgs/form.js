@@ -54,7 +54,7 @@ const Organization = ({ history }) => {
   const managersService = ManagersService();
   const [loading, setLoading] = useState(false);
   const [buttonLoading, setButtonLoading] = useState(false);
-  const [logoFixed, setLogoFixed] = useState(state ? state.logoFixed: null);
+  const [logoFixed, setLogoFixed] = useState(state? state.logoFixed : null);
   const [password, setPassword] = useState('');
   const [taxes, setTaxes] = useState(taxesDefault)
   const [eCommerce, setECommerce] = useState(eCommerceDefault);
@@ -95,21 +95,17 @@ const Organization = ({ history }) => {
     if (!action) getData();
     // eslint-disable-next-line
   }, []);
-
   const handleLogoImage = async (callback) => {
-    const logoFixed = client.logoFixed;
     if(!logoFixed) {
       callback('');
-    } else if(typeof logoFixed === 'string') {
+    } else if(typeof logoFixed === 'string' && Boolean(logoFixed)) {
       callback(logoFixed);
     } else {
       const pathFile = `logoFixed/${(new Date()).getTime()}-${logoFixed.name}`;
       const storageRef = ref(firebase.storage, pathFile);
-      uploadBytes(storageRef, logoFixed).then((snapshot) => {
-        getDownloadURL(snapshot.ref).then((downloadURL) => {
-          callback(downloadURL);
-        });
-      });
+      const bytes = await uploadBytes(storageRef, logoFixed);
+      const downloadURL = await getDownloadURL(bytes.ref);
+      await callback(downloadURL);
     }
   }
 
@@ -152,12 +148,14 @@ const Organization = ({ history }) => {
             );
             if (res.data.success) {
               history.goBack();
+              
             }
+            setButtonLoading(false);
           } else {
+            setButtonLoading(false);
             throw new Error('Erro ao cadastrar no banco');
           }
         })
-        setButtonLoading(false);
       } else {
         setButtonLoading(false);
         throw new Error(errors[user]);
@@ -171,7 +169,7 @@ const Organization = ({ history }) => {
   const handleEdit = async () => {
     try {
       setButtonLoading(true);
-      handleLogoImage(async (imageUrl) => {
+      await handleLogoImage(async (imageUrl) => {
         if (
           await clientsService.saveUpdate(
             {
