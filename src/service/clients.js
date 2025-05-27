@@ -1,5 +1,5 @@
 import firebase from '../firebase';
-import { ref, onValue, set, get, update, push, child, remove } from 'firebase/database';
+import { ref, set, get, update, push, child, remove } from 'firebase/database';
 import { useState, useEffect } from 'react';
 import Clients from '../models/Clients';
 import Api from '../api';
@@ -14,12 +14,13 @@ const ClientsService = () => {
     return () => {
       setData([]);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const reload = async () => {
     const clients = [];
     const snapshot = await get(load);
-    if(snapshot.exists()) {
+    if (snapshot.exists()) {
       const snapshotVal = snapshot.val();
       for (let i in snapshotVal) {
         const clientObj = Clients();
@@ -50,12 +51,11 @@ const ClientsService = () => {
   };
 
   const removeClient = async (uid) => {
-    if(uid) {
-     
+    if (uid) {
       const snapshot = await get(ref(firebase.db, `${table}/${uid}`));
-      if(snapshot.exists()) {
+      if (snapshot.exists()) {
         const res = await Api.delete(`/user/deleteClient/${uid}`);
-        if(res.data.success){
+        if (res.data.success) {
           await set(ref(firebase.db, `removed/${table}/${uid}`), snapshot.val());
           await remove(ref(firebase.db, `${table}/${uid}`))
         }

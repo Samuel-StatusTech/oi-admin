@@ -54,7 +54,8 @@ const Organization = ({ history }) => {
   const managersService = ManagersService();
   const [loading, setLoading] = useState(false);
   const [buttonLoading, setButtonLoading] = useState(false);
-  const [logoFixed, setLogoFixed] = useState(state? state.logoFixed : null);
+  const [logoFixed, setLogoFixed] = useState(state ? state.logoFixed : null);
+  const [logoWebstore, setLogoWebstore] = useState(state ? state.logoWebstore : null);
   const [password, setPassword] = useState('');
   const [taxes, setTaxes] = useState(taxesDefault)
   const [eCommerce, setECommerce] = useState(eCommerceDefault);
@@ -68,9 +69,9 @@ const Organization = ({ history }) => {
     hasECommerce: false,
     expireAt: formatDateToMysqlDate(new Date()),
     email: '',
-    uf:'',
-    city:'',
-    phone:'',
+    uf: '',
+    city: '',
+    phone: '',
     uidUser: '',
     corporateName: ''
   })
@@ -96,32 +97,58 @@ const Organization = ({ history }) => {
     // eslint-disable-next-line
   }, []);
   const handleLogoImage = async (callback) => {
-    if(!logoFixed) {
-      callback('');
-    } else if(typeof logoFixed === 'string' && Boolean(logoFixed)) {
-      callback(logoFixed);
+    let logoFixedData = null
+    let webstorelogoData = null
+
+    // Logo Fixed
+    if (!logoFixed) {
+      logoFixedData = '';
+    } else if (typeof logoFixed === 'string' && Boolean(logoFixed)) {
+      logoFixedData = logoFixed;
     } else {
       const pathFile = `logoFixed/${(new Date()).getTime()}-${logoFixed.name}`;
       const storageRef = ref(firebase.storage, pathFile);
       const bytes = await uploadBytes(storageRef, logoFixed);
       const downloadURL = await getDownloadURL(bytes.ref);
-      await callback(downloadURL);
+      logoFixedData = downloadURL;
     }
+
+    // Webstore Logo
+    if (!logoWebstore) {
+      webstorelogoData = '';
+    } else if (typeof logoWebstore === 'string' && Boolean(logoWebstore)) {
+      webstorelogoData = logoWebstore;
+    } else {
+      const base64 = await fileToBase64(logoWebstore)
+      webstorelogoData = base64;
+    }
+
+    callback(logoFixedData, webstorelogoData)
   }
+
+  const fileToBase64 = (file) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file); // isso já adiciona o prefixo data:image/png;base64,...
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = reject;
+    });
+  };
 
   const handleSave = async () => {
     try {
       setButtonLoading(true);
       let [user, error1] = await createUser(client.email, password);
       if (!error1) {
-        handleLogoImage(async (imageUrl) => {
+        handleLogoImage(async (imageUrl, webstorelogoData) => {
           const dbName = `DB${sha1(Math.random())}`;
           let [uid, error2] = await clientsService.save({
             ...client,
-            dbName, 
+            dbName,
             createdAt: +new Date(),
             expireAt: +new Date(client.expireAt),
             logoFixed: imageUrl,
+            logoWebstore: webstorelogoData,
             uidUser: user.uid,
             taxes,
             eCommerce
@@ -148,7 +175,7 @@ const Organization = ({ history }) => {
             );
             if (res.data.success) {
               history.goBack();
-              
+
             }
             setButtonLoading(false);
           } else {
@@ -163,13 +190,13 @@ const Organization = ({ history }) => {
     } catch (error) {
       alert(error?.message ?? 'Ocorreu um erro');
       setButtonLoading(false);
-    } 
+    }
   };
 
   const handleEdit = async () => {
     try {
       setButtonLoading(true);
-      await handleLogoImage(async (imageUrl) => {
+      await handleLogoImage(async (imageUrl, webstorelogoData) => {
         if (
           await clientsService.saveUpdate(
             {
@@ -177,6 +204,7 @@ const Organization = ({ history }) => {
               uid: state.uid,
               email: state.email ?? null,
               logoFixed: imageUrl,
+              logoWebstore: webstorelogoData,
               uidUser: state.uidUser ?? null,
               createdAt: state.createdAt,
               expireAt: +new Date(client.expireAt),
@@ -193,7 +221,7 @@ const Organization = ({ history }) => {
     } catch (error) {
       alert(error?.message ?? 'Ocorreu um erro');
       setButtonLoading(false);
-    } 
+    }
   };
   const getData = () => {
     setLoading(true);
@@ -204,7 +232,7 @@ const Organization = ({ history }) => {
       date.setHours(date.getHours() + 3);
       setClient({
         ...state,
-        expireAt:formatDateToMysqlDate(date),
+        expireAt: formatDateToMysqlDate(date),
       });
       setTaxes(taxesVal);
       setECommerce(eCommerceVal);
@@ -215,27 +243,26 @@ const Organization = ({ history }) => {
     return !str || str.length === 0;
   };
   const nameInputVerify = (name) => {
-    if (isEmpty(name)) {setErrorsVerify({...errorsVerify, name: 'É necessário preencher este campo'}); return true;}
-    setErrorsVerify({...errorsVerify, name: null});
+    if (isEmpty(name)) { setErrorsVerify({ ...errorsVerify, name: 'É necessário preencher este campo' }); return true; }
+    setErrorsVerify({ ...errorsVerify, name: null });
     return false;
   };
   const cnpjVerify = (cnpj) => {
     const length = removeMask(cnpj)?.length;
-    if (length != 14 && length != 11){setErrorsVerify({...errorsVerify, cnpj: 'É necessário preencher este campo'}); return true;} 
-    setErrorsVerify({...errorsVerify, cnpj: null});
+    if (length != 14 && length != 11) { setErrorsVerify({ ...errorsVerify, cnpj: 'É necessário preencher este campo' }); return true; }
+    setErrorsVerify({ ...errorsVerify, cnpj: null });
     return false;
   };
   const emailInputVerify = (email) => {
-    if (isEmpty(email)) {setErrorsVerify({...errorsVerify, email: 'É necessário preencher este campo'}); return true }
-    if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(email))
-      {setErrorsVerify({...errorsVerify, email: 'Endereço de email inválido'}); return true;}
-    setErrorsVerify({...errorsVerify, email: null});
+    if (isEmpty(email)) { setErrorsVerify({ ...errorsVerify, email: 'É necessário preencher este campo' }); return true }
+    if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(email)) { setErrorsVerify({ ...errorsVerify, email: 'Endereço de email inválido' }); return true; }
+    setErrorsVerify({ ...errorsVerify, email: null });
     return false;
   };
   const passwordInputVerify = (password) => {
-    if (!/^\S{4,}/.test(password)) {setErrorsVerify({...errorsVerify, password: 'Mínimo 4 caracteres'}); return true;} 
-    if (!/^\S*$/i.test(password)) {setErrorsVerify({...errorsVerify, password: 'Não pode espaço em branco no campo'}); return true;}
-    setErrorsVerify({...errorsVerify, password: null});
+    if (!/^\S{4,}/.test(password)) { setErrorsVerify({ ...errorsVerify, password: 'Mínimo 4 caracteres' }); return true; }
+    if (!/^\S*$/i.test(password)) { setErrorsVerify({ ...errorsVerify, password: 'Não pode espaço em branco no campo' }); return true; }
+    setErrorsVerify({ ...errorsVerify, password: null });
     return false;
   };
   const verifyInputs = () => {
@@ -246,7 +273,7 @@ const Organization = ({ history }) => {
   };
   const handleSubmit = () => {
     try {
-      if(buttonLoading)
+      if (buttonLoading)
         return;
       if (action) {
         if (verifyInputs()) throw { message: 'Um ou mais campos possui erro!' };
@@ -277,7 +304,7 @@ const Organization = ({ history }) => {
                     value={client.name}
                     onChange={(e) => {
                       const value = e.target.value.slice(0, 80);
-                      setClient({...client, name: value})
+                      setClient({ ...client, name: value })
                       nameInputVerify(value);
                     }}
                     error={Boolean(errorsVerify?.name)}
@@ -294,7 +321,7 @@ const Organization = ({ history }) => {
                     value={client.corporateName}
                     onChange={(e) => {
                       const value = e.target.value.slice(0, 100);
-                      setClient({...client, corporateName: value})
+                      setClient({ ...client, corporateName: value })
                     }}
                     error={Boolean(errorsVerify?.corporateName)}
                     helperText={errorsVerify?.corporateName}
@@ -309,7 +336,7 @@ const Organization = ({ history }) => {
                     name='CNPJ'
                     value={cpfCnpjMask(client.CNPJ)}
                     onChange={(e) => {
-                      setClient({...client, CNPJ: removeMask(e.target.value)})
+                      setClient({ ...client, CNPJ: removeMask(e.target.value) })
                     }}
                     error={Boolean(errorsVerify?.cnpj)}
                     helperText={errorsVerify?.cnpj}
@@ -323,7 +350,7 @@ const Organization = ({ history }) => {
                     label='UF'
                     name='uf'
                     value={client.uf}
-                    onChange={(e) => setClient({...client, uf: e.target.value})}
+                    onChange={(e) => setClient({ ...client, uf: e.target.value })}
                     variant='outlined'
                     size='small'
                     fullWidth
@@ -339,7 +366,7 @@ const Organization = ({ history }) => {
                     value={client.city}
                     onChange={(e) => {
                       const value = e.target.value.slice(0, 255);
-                      setClient({...client, city: value})
+                      setClient({ ...client, city: value })
                     }}
                     error={Boolean(errorsVerify?.city)}
                     helperText={errorsVerify?.city}
@@ -354,7 +381,7 @@ const Organization = ({ history }) => {
                     name='phone'
                     value={cellPhoneMask(client.phone)}
                     onChange={(e) => {
-                      setClient({...client, phone: removeMask(e.target.value)})
+                      setClient({ ...client, phone: removeMask(e.target.value) })
                     }}
                     error={Boolean(errorsVerify?.phone)}
                     helperText={errorsVerify?.phone}
@@ -368,7 +395,7 @@ const Organization = ({ history }) => {
                     label='Número de dispositivos'
                     name='devices'
                     value={client.devices}
-                    onChange={(e) => setClient({...client, devices: e.target.value})}
+                    onChange={(e) => setClient({ ...client, devices: e.target.value })}
                     variant='outlined'
                     type='number'
                     size='small'
@@ -383,7 +410,7 @@ const Organization = ({ history }) => {
                     label='Data de vencimento'
                     name='devices'
                     value={client.expireAt}
-                    onChange={(e) => setClient({...client, expireAt: e.target.value})}
+                    onChange={(e) => setClient({ ...client, expireAt: e.target.value })}
                     variant='outlined'
                     type='date'
                     size='small'
@@ -397,7 +424,7 @@ const Organization = ({ history }) => {
                     value={client.email}
                     onChange={(e) => {
                       const value = e.target.value;
-                      setClient({...client, email: value})
+                      setClient({ ...client, email: value })
                       emailInputVerify(value);
                     }}
                     error={Boolean(errorsVerify?.email)}
@@ -425,24 +452,34 @@ const Organization = ({ history }) => {
                     size='small'
                     type='password'
                     fullWidth
-                  /> 
+                  />
                 </Grid>}
               </Grid>
             </Grid>
-            <Grid item xl={6} lg={6} md={6} sm={12} xs={12}>
-            <ImagePicker
-              label='Logo fixa'
-              name='imageLogo'
-              image={logoFixed}
-              setImage={setLogoFixed}
-            />
+            <Grid item container spacing={2} xl={6} lg={6} md={6} sm={12} xs={12}>
+              <Grid item xl={6} lg={6} md={6} sm={12} xs={12}>
+                <ImagePicker
+                  label='Logo fixa'
+                  name='imageLogo'
+                  image={logoFixed}
+                  setImage={setLogoFixed}
+                />
+              </Grid>
+              <Grid item xl={6} lg={6} md={6} sm={12} xs={12}>
+                <ImagePicker
+                  label='Logo loja virtual'
+                  name='imageLogoWebstore'
+                  image={logoWebstore}
+                  setImage={setLogoWebstore}
+                />
+              </Grid>
             </Grid>
             <Grid item xs={4}>
               <TextField
                 label='Taxa PIX'
-                 name='pix'
+                name='pix'
                 value={percentageMask(taxes.pix)}
-                onChange={(e) => setTaxes({...taxes, pix: removeMask(e.target.value)})}
+                onChange={(e) => setTaxes({ ...taxes, pix: removeMask(e.target.value) })}
                 error={Boolean(errorsVerify?.taxes?.pix)}
                 helperText={errorsVerify?.taxes?.pix}
                 variant='outlined'
@@ -455,26 +492,26 @@ const Organization = ({ history }) => {
                 label='Taxa crédito'
                 name='credit'
                 value={percentageMask(taxes.credit)}
-                onChange={(e) => setTaxes({...taxes, credit: removeMask(e.target.value)})}
+                onChange={(e) => setTaxes({ ...taxes, credit: removeMask(e.target.value) })}
                 error={Boolean(errorsVerify?.taxes?.credit)}
                 helperText={errorsVerify?.taxes?.credit}
                 variant='outlined'
                 size='small'
                 fullWidth
-                />
+              />
             </Grid>
             <Grid item xs={4}>
               <TextField
                 label='Taxa débito'
                 name='debit'
                 value={percentageMask(taxes.debit)}
-                onChange={(e) => setTaxes({...taxes, debit: removeMask(e.target.value)})}
+                onChange={(e) => setTaxes({ ...taxes, debit: removeMask(e.target.value) })}
                 error={Boolean(errorsVerify?.taxes?.debit)}
                 helperText={errorsVerify?.taxes?.debit}
                 variant='outlined'
                 size='small'
                 fullWidth
-                />
+              />
             </Grid>
             <Grid item lg={12} md={12} sm={12} xs={12}>
               <Grid container spacing={2}>
@@ -483,7 +520,7 @@ const Organization = ({ history }) => {
                     label='Permitido uso de cashless'
                     name='cashless'
                     value={client.cashless}
-                    control={<GreenSwitch checked={client.cashless} onChange={(e) => setClient({...client, cashless: e.target.checked})} />}
+                    control={<GreenSwitch checked={client.cashless} onChange={(e) => setClient({ ...client, cashless: e.target.checked })} />}
                   />
                 </Grid>
                 <Grid item>
@@ -491,7 +528,7 @@ const Organization = ({ history }) => {
                     label='Status'
                     name='status'
                     value={client.status}
-                    control={<GreenSwitch checked={client.status} onChange={(e) => setClient({...client, status: e.target.checked})} />}
+                    control={<GreenSwitch checked={client.status} onChange={(e) => setClient({ ...client, status: e.target.checked })} />}
                   />
                 </Grid>
                 <Grid item>
@@ -499,7 +536,7 @@ const Organization = ({ history }) => {
                     label='Loja virtual'
                     name='hasEcommerce'
                     value={client.hasECommerce}
-                    control={<GreenSwitch checked={client.hasECommerce} onChange={(e) => {setClient({...client, hasECommerce: e.target.checked}); setECommerce(eCommerceDefault)}} />}
+                    control={<GreenSwitch checked={client.hasECommerce} onChange={(e) => { setClient({ ...client, hasECommerce: e.target.checked }); setECommerce(eCommerceDefault) }} />}
                   />
                 </Grid>
               </Grid>
