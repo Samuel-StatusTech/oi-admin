@@ -94,11 +94,13 @@ const Organization = ({ history }) => {
 
   useEffect(() => {
     if (!action) getData();
+    console.log(state)
     // eslint-disable-next-line
   }, []);
   const handleLogoImage = async (callback) => {
     let logoFixedData = null
     let webstorelogoData = null
+    let logoWebstoreUrl = null
 
     // Logo Fixed
     if (!logoFixed) {
@@ -121,9 +123,16 @@ const Organization = ({ history }) => {
     } else {
       const base64 = await fileToBase64(logoWebstore)
       webstorelogoData = base64;
+
+      // upload
+      const pathFile = `logoWebstore/${(new Date()).getTime()}-${logoWebstore.name}`;
+      const storageRef = ref(firebase.storage, pathFile);
+      const bytes = await uploadBytes(storageRef, logoWebstore);
+      const downloadURL = await getDownloadURL(bytes.ref);
+      logoWebstoreUrl = downloadURL;
     }
 
-    callback(logoFixedData, webstorelogoData)
+    callback(logoFixedData, webstorelogoData, logoWebstoreUrl)
   }
 
   const fileToBase64 = (file) => {
@@ -140,7 +149,7 @@ const Organization = ({ history }) => {
       setButtonLoading(true);
       let [user, error1] = await createUser(client.email, password);
       if (!error1) {
-        handleLogoImage(async (imageUrl, webstorelogoData) => {
+        handleLogoImage(async (imageUrl, webstorelogoData, logoWebstoreUrl) => {
           const dbName = `DB${sha1(Math.random())}`;
           let [uid, error2] = await clientsService.save({
             ...client,
@@ -149,6 +158,7 @@ const Organization = ({ history }) => {
             expireAt: +new Date(client.expireAt),
             logoFixed: imageUrl,
             logoWebstore: webstorelogoData,
+            logoWebstoreUrl: logoWebstoreUrl,
             uidUser: user.uid,
             taxes,
             eCommerce
@@ -196,7 +206,7 @@ const Organization = ({ history }) => {
   const handleEdit = async () => {
     try {
       setButtonLoading(true);
-      await handleLogoImage(async (imageUrl, webstorelogoData) => {
+      await handleLogoImage(async (imageUrl, webstorelogoData, logoWebstoreUrl) => {
         if (
           await clientsService.saveUpdate(
             {
@@ -205,6 +215,7 @@ const Organization = ({ history }) => {
               email: state.email ?? null,
               logoFixed: imageUrl,
               logoWebstore: webstorelogoData,
+              logoWebstoreUrl: logoWebstoreUrl,
               uidUser: state.uidUser ?? null,
               createdAt: state.createdAt,
               expireAt: +new Date(client.expireAt),

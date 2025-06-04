@@ -11,6 +11,7 @@ function Clients() {
   let uidUser = '';
   let logoFixed;
   let logoWebstore;
+  let logoWebstoreUrl;
   let uf = '';
   let city = '';
   let phone = '';
@@ -20,7 +21,6 @@ function Clients() {
   let hasECommerce = false; 
 
   function fromJson(json) {
-    if (json.uid === "-NalZzvb2wasU_6duGcn") console.log("--- JSON ---\n", json)
     this.uid = json['uid'];
     this.CNPJ = json['CNPJ'];
     this.cashless = json['cashless'];
@@ -33,6 +33,7 @@ function Clients() {
     this.uidUser = json['uidUser'];
     this.logoFixed = json['logoFixed'];
     this.logoWebstore = json['logoWebstore'];
+    this.logoWebstoreUrl = json['logoWebstoreUrl'];
     this.uf = json['uf'] ?? this.uf;
     this.city = json['city'] ?? this.city;
     this.phone = json['phone'] ?? this.phone;
@@ -56,6 +57,7 @@ function Clients() {
       uidUser: this.uidUser,
       logoFixed: this.logoFixed,
       logoWebstore: this.logoWebstore,
+      logoWebstoreUrl: this.logoWebstoreUrl,
       uf: this.uf,
       city: this.city,
       phone: this.phone,
@@ -65,6 +67,6 @@ function Clients() {
       corporateName: this.corporateName
     };
   }
-  return { uid, CNPJ, cashless, createdAt, devices, expireAt, name, status, email, uidUser, uf, city, phone, taxes, eCommerce, hasECommerce, logoFixed, logoWebstore, corporateName, fromJson, toJson };
+  return { uid, CNPJ, cashless, createdAt, devices, expireAt, name, status, email, uidUser, uf, city, phone, taxes, eCommerce, hasECommerce, logoFixed, logoWebstore, logoWebstoreUrl, corporateName, fromJson, toJson };
 }
 export default Clients;
