@@ -102,6 +102,22 @@ const FormECommerce = ({data, setData}) => {
                 </Grid>
               
             </Grid>
+
+            <Grid item lg={12} md={12} sm={12} xs={12}>
+                <Grid item xs={4}>
+                    <TextField
+                        label='Nome da loja virtual'
+                        name='webstoreUrl'
+                        value={data.webstoreUrl}
+                        onChange={(e) => setData({...data, webstoreUrl: e.target.value})}
+                        variant='outlined'
+                        type='text'
+                        size='small'
+                        fullWidth
+                    />
+                </Grid>
+            </Grid>
+
             <Grid item lg={12} md={12} sm={12} xs={12}>
                 <Grid container spacing={2}>
                     <Grid item md={2} xs={12}>
@@ -139,17 +155,19 @@ const FormECommerce = ({data, setData}) => {
                 </Grid>
             </Grid>
             
-            <Grid item xs={4}>
-                <TextField
-                    label='ID do Pagseguro'
-                    name='gatewayToken'
-                    value={data.gatewayToken}
-                    onChange={(e) => setData({...data, gatewayToken: e.target.value})}
-                    variant='outlined'
-                    type='text'
-                    size='small'
-                    fullWidth
-                />
+            <Grid item lg={12} md={12} sm={12} xs={12}>
+                <Grid item xs={4}>
+                    <TextField
+                        label='ID do Pagseguro'
+                        name='gatewayToken'
+                        value={data.gatewayToken}
+                        onChange={(e) => setData({...data, gatewayToken: e.target.value})}
+                        variant='outlined'
+                        type='text'
+                        size='small'
+                        fullWidth
+                    />
+                </Grid>
             </Grid>
         </>
 

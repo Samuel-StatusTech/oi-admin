@@ -17,6 +17,25 @@ const ClientsService = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const checkWebstoreNameAvailability = async (webstoreName) => {
+    try {
+      const snapshot = await get(load);
+
+      if (!snapshot.exists()) return true;
+
+      const data = snapshot.val();
+      
+      const found = Object.values(data).some(
+        (client) => client.eCommerce?.webstoreUrl === webstoreName
+      );
+
+      return !found;
+
+    } catch (error) {
+      return false;
+    }
+  }
+
   const reload = async () => {
     const clients = [];
     const snapshot = await get(load);
@@ -63,6 +82,6 @@ const ClientsService = () => {
     }
   };
 
-  return { data, save, saveUpdate, reload, removeClient };
+  return { data, checkWebstoreNameAvailability, save, saveUpdate, reload, removeClient };
 };
 export default ClientsService;

@@ -39,7 +39,8 @@ const Organization = ({ history }) => {
     hasSplit: false,
     splitValue: 0,
     splitPercentage: 0,
-    gatewayToken: ''
+    gatewayToken: '',
+    webstoreUrl: ''
   };
   const taxesDefault = {
     debit: 0,
@@ -147,6 +148,15 @@ const Organization = ({ history }) => {
   const handleSave = async () => {
     try {
       setButtonLoading(true);
+
+      const isWebstoreNameAvailable = await clientsService.checkWebstoreNameAvailability(eCommerce.webstoreUrl)
+
+      if (!isWebstoreNameAvailable) {
+        alert("Esse nome da loja online não está disponível.")
+        setButtonLoading(false)
+        return
+      }
+
       let [user, error1] = await createUser(client.email, password);
       if (!error1) {
         handleLogoImage(async (imageUrl, webstorelogoData, logoWebstoreUrl) => {
@@ -206,6 +216,15 @@ const Organization = ({ history }) => {
   const handleEdit = async () => {
     try {
       setButtonLoading(true);
+
+      const isWebstoreNameAvailable = await clientsService.checkWebstoreNameAvailability(eCommerce.webstoreUrl)
+      
+      if (!isWebstoreNameAvailable) {
+        alert(`Esse nome da loja online não está disponível: ${eCommerce.webstoreUrl}`)
+        setButtonLoading(false)
+        return
+      }
+
       await handleLogoImage(async (imageUrl, webstorelogoData, logoWebstoreUrl) => {
         if (
           await clientsService.saveUpdate(
