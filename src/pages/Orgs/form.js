@@ -149,12 +149,14 @@ const Organization = ({ history }) => {
     try {
       setButtonLoading(true);
 
-      const isWebstoreNameAvailable = await clientsService.checkWebstoreNameAvailability(eCommerce.webstoreUrl)
-
-      if (!isWebstoreNameAvailable) {
-        alert("Esse nome da loja online não está disponível.")
-        setButtonLoading(false)
-        return
+      if (!!eCommerce.webstoreUrl) {
+        const isWebstoreNameAvailable = await clientsService.checkWebstoreNameAvailability(eCommerce.webstoreUrl)
+  
+        if (!isWebstoreNameAvailable) {
+          alert("Esse nome da loja online não está disponível.")
+          setButtonLoading(false)
+          return
+        }
       }
 
       let [user, error1] = await createUser(client.email, password);

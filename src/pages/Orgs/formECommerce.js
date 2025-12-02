@@ -114,6 +114,13 @@ const FormECommerce = ({data, setData}) => {
                         type='text'
                         size='small'
                         fullWidth
+                        InputProps={{
+                            endAdornment: (
+                                <Typography style={{ marginRight: 8, color: 'rgba(0,0,0,0.6)' }}>
+                                    .listapix.com
+                                </Typography>
+                            )
+                        }}
                     />
                 </Grid>
             </Grid>
