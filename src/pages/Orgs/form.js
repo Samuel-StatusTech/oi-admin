@@ -217,12 +217,14 @@ const Organization = ({ history }) => {
     try {
       setButtonLoading(true);
 
-      const isWebstoreNameAvailable = await clientsService.checkWebstoreNameAvailability(eCommerce.webstoreUrl)
-      
-      if (!isWebstoreNameAvailable) {
-        alert(`Esse nome da loja online não está disponível: ${eCommerce.webstoreUrl}`)
-        setButtonLoading(false)
-        return
+      if (!!eCommerce.webstoreUrl) {
+        const isWebstoreNameAvailable = await clientsService.checkWebstoreNameAvailability(eCommerce.webstoreUrl)
+        
+        if (!isWebstoreNameAvailable) {
+          alert(`Esse nome da loja online não está disponível: ${eCommerce.webstoreUrl}`)
+          setButtonLoading(false)
+          return
+        }
       }
 
       await handleLogoImage(async (imageUrl, webstorelogoData, logoWebstoreUrl) => {
