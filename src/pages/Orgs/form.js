@@ -59,6 +59,7 @@ const Organization = ({ history }) => {
   const [logoWebstore, setLogoWebstore] = useState(state ? state.logoWebstore : null);
   const [password, setPassword] = useState('');
   const [taxes, setTaxes] = useState(taxesDefault)
+  const [initialECommerceWebstoreUrl, setInitialECommerceWebstoreUrl] = useState("");
   const [eCommerce, setECommerce] = useState(eCommerceDefault);
   // Usuário comum
   const [client, setClient] = useState({
@@ -153,7 +154,7 @@ const Organization = ({ history }) => {
         const isWebstoreNameAvailable = await clientsService.checkWebstoreNameAvailability(eCommerce.webstoreUrl)
   
         if (!isWebstoreNameAvailable) {
-          alert("Esse nome da loja online não está disponível.")
+          alert(`Esse nome da loja online não está disponível: ${eCommerce.webstoreUrl}`)
           setButtonLoading(false)
           return
         }
@@ -220,7 +221,7 @@ const Organization = ({ history }) => {
       setButtonLoading(true);
 
       if (!!eCommerce.webstoreUrl) {
-        const isWebstoreNameAvailable = await clientsService.checkWebstoreNameAvailability(eCommerce.webstoreUrl)
+        const isWebstoreNameAvailable = await clientsService.checkWebstoreNameAvailability(eCommerce.webstoreUrl, client.uidUser)
         
         if (!isWebstoreNameAvailable) {
           alert(`Esse nome da loja online não está disponível: ${eCommerce.webstoreUrl}`)
@@ -270,6 +271,8 @@ const Organization = ({ history }) => {
       });
       setTaxes(taxesVal);
       setECommerce(eCommerceVal);
+
+      if (eCommerceVal.webstoreUrl) setInitialECommerceWebstoreUrl(eCommerceVal.webstoreUrl)
     }
     setLoading(false);
   };
@@ -570,7 +573,7 @@ const Organization = ({ history }) => {
                     label='Loja virtual'
                     name='hasEcommerce'
                     value={client.hasECommerce}
-                    control={<GreenSwitch checked={client.hasECommerce} onChange={(e) => { setClient({ ...client, hasECommerce: e.target.checked }); setECommerce(eCommerceDefault) }} />}
+                    control={<GreenSwitch checked={client.hasECommerce} onChange={(e) => { setClient({ ...client, hasECommerce: e.target.checked }); setECommerce({ ...eCommerceDefault, webstoreUrl: initialECommerceWebstoreUrl }) }} />}
                   />
                 </Grid>
               </Grid>
@@ -580,7 +583,7 @@ const Organization = ({ history }) => {
                 <Typography style={{ fontWeight: 'bold' }}>CONFIGURAÇÃO LOJA VIRTUAL</Typography>
                 <Divider />
               </Grid>
-              <FormECommerce data={eCommerce} setData={setECommerce} />
+              <FormECommerce data={eCommerce} setData={setECommerce} isWebstoreNameAvailable={!initialECommerceWebstoreUrl} />
             </>)}
             <Grid item lg={12} md={12} sm={12} xs={12}>
               <Grid container spacing={2}>

@@ -2,7 +2,7 @@ import { FormControlLabel, Grid, Switch, TextField, Typography, withStyles } fro
 import React from 'react'
 import { currencyMask, percentageMask, removeMask } from '../../utils/mask'
 
-const FormECommerce = ({data, setData}) => {
+const FormECommerce = ({data, setData, isWebstoreNameAvailable}) => {
     const GreenSwitch = withStyles({
         switchBase: {
           '&$checked': {
@@ -121,6 +121,7 @@ const FormECommerce = ({data, setData}) => {
                                 </Typography>
                             )
                         }}
+                        disabled={!isWebstoreNameAvailable}
                     />
                 </Grid>
             </Grid>

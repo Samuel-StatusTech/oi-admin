@@ -17,7 +17,7 @@ const ClientsService = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const checkWebstoreNameAvailability = async (webstoreName) => {
+  const checkWebstoreNameAvailability = async (webstoreName, uidUser = "") => {
     try {
       const snapshot = await get(load);
 
@@ -26,7 +26,7 @@ const ClientsService = () => {
       const data = snapshot.val();
       
       const found = Object.values(data).some(
-        (client) => client.eCommerce?.webstoreUrl === webstoreName
+        (client) => client.eCommerce?.webstoreUrl === webstoreName && client.uidUser !== uidUser
       );
 
       return !found;
