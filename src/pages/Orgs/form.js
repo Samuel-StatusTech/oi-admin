@@ -53,7 +53,7 @@ const Organization = ({ history }) => {
   const { state } = history.location;
   const clientsService = ClientsService();
   const managersService = ManagersService();
-  const [loading, setLoading] = useState(false);
+  const [, setLoading] = useState(false);
   const [buttonLoading, setButtonLoading] = useState(false);
   const [logoFixed, setLogoFixed] = useState(state ? state.logoFixed : null);
   const [logoWebstore, setLogoWebstore] = useState(state ? state.logoWebstore : null);
@@ -69,6 +69,7 @@ const Organization = ({ history }) => {
     cashless: false,
     status: false,
     hasECommerce: false,
+    onlyECommerce: false,
     expireAt: formatDateToMysqlDate(new Date()),
     email: '',
     uf: '',
@@ -152,7 +153,7 @@ const Organization = ({ history }) => {
 
       if (!!eCommerce.webstoreUrl) {
         const isWebstoreNameAvailable = await clientsService.checkWebstoreNameAvailability(eCommerce.webstoreUrl)
-  
+
         if (!isWebstoreNameAvailable) {
           alert(`Esse nome da loja online não está disponível: ${eCommerce.webstoreUrl}`)
           setButtonLoading(false)
@@ -222,7 +223,7 @@ const Organization = ({ history }) => {
 
       if (!!eCommerce.webstoreUrl) {
         const isWebstoreNameAvailable = await clientsService.checkWebstoreNameAvailability(eCommerce.webstoreUrl, client.uidUser)
-        
+
         if (!isWebstoreNameAvailable) {
           alert(`Esse nome da loja online não está disponível: ${eCommerce.webstoreUrl}`)
           setButtonLoading(false)
@@ -265,6 +266,7 @@ const Organization = ({ history }) => {
       const eCommerceVal = state?.eCommerce ?? eCommerceDefault;
       const date = new Date(state.expireAt);
       date.setHours(date.getHours() + 3);
+      console.log("Current org: ", state)
       setClient({
         ...state,
         expireAt: formatDateToMysqlDate(date),
@@ -286,7 +288,7 @@ const Organization = ({ history }) => {
   };
   const cnpjVerify = (cnpj) => {
     const length = removeMask(cnpj)?.length;
-    if (length != 14 && length != 11) { setErrorsVerify({ ...errorsVerify, cnpj: 'É necessário preencher este campo' }); return true; }
+    if (length !== 14 && length !== 11) { setErrorsVerify({ ...errorsVerify, cnpj: 'É necessário preencher este campo' }); return true; }
     setErrorsVerify({ ...errorsVerify, cnpj: null });
     return false;
   };
@@ -574,6 +576,14 @@ const Organization = ({ history }) => {
                     name='hasEcommerce'
                     value={client.hasECommerce}
                     control={<GreenSwitch checked={client.hasECommerce} onChange={(e) => { setClient({ ...client, hasECommerce: e.target.checked }); setECommerce({ ...eCommerceDefault, webstoreUrl: initialECommerceWebstoreUrl }) }} />}
+                  />
+                </Grid>
+                <Grid item>
+                  <FormControlLabel
+                    label='Somente loja virtual'
+                    name='onlyEcommerce'
+                    value={client.onlyECommerce}
+                    control={<GreenSwitch checked={client.onlyECommerce} onChange={(e) => setClient({ ...client, onlyECommerce: e.target.checked })} />}
                   />
                 </Grid>
               </Grid>
