@@ -100,6 +100,7 @@ const Organization = ({ history }) => {
     console.log(state)
     // eslint-disable-next-line
   }, []);
+
   const handleLogoImage = async (callback) => {
     let logoFixedData = null
     let webstorelogoData = null
@@ -593,7 +594,12 @@ const Organization = ({ history }) => {
                 <Typography style={{ fontWeight: 'bold' }}>CONFIGURAÇÃO LOJA VIRTUAL</Typography>
                 <Divider />
               </Grid>
-              <FormECommerce data={eCommerce} setData={setECommerce} isWebstoreNameAvailable={!initialECommerceWebstoreUrl} />
+              <FormECommerce
+                data={eCommerce}
+                setData={setECommerce}
+                isWebstoreNameAvailable={!initialECommerceWebstoreUrl} 
+                clientId={client.uid}
+              />
             </>)}
             <Grid item lg={12} md={12} sm={12} xs={12}>
               <Grid container spacing={2}>
