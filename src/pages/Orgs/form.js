@@ -97,7 +97,6 @@ const Organization = ({ history }) => {
 
   useEffect(() => {
     if (!action) getData();
-    console.log(state)
     // eslint-disable-next-line
   }, []);
 
@@ -267,7 +266,6 @@ const Organization = ({ history }) => {
       const eCommerceVal = state?.eCommerce ?? eCommerceDefault;
       const date = new Date(state.expireAt);
       date.setHours(date.getHours() + 3);
-      console.log("Current org: ", state)
       setClient({
         ...state,
         expireAt: formatDateToMysqlDate(date),

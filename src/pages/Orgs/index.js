@@ -116,7 +116,6 @@ const Settings = () => {
             },
           }
         );
-        console.log(res.data)
       }
       setLoading(false)
     });

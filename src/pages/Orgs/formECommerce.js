@@ -176,7 +176,7 @@ const FormECommerce = ({
                             control={<GreenSwitch checked={data.hasSplit} onChange={(e) => setData({ ...data, splitValue: 0, splitPercentage: 0, hasSplit: e.target.checked })} />}
                         />
                     </Grid>
-                    {data.hasSplit && (<><Grid item md={4} xs={12}>
+                    {/* {data.hasSplit && (<><Grid item md={4} xs={12}>
                         <TextField
                             label='Taxa retida (R$)'
                             name='splitValue'
@@ -199,53 +199,59 @@ const FormECommerce = ({
                                 size='small'
                                 fullWidth
                             />
-                        </Grid></>)}
+                        </Grid></>)} */}
                 </Grid>
             </Grid>
 
-            <Grid item lg={12} md={12} sm={12} xs={12}>
+            <Grid item container lg={12} md={12} sm={12} xs={12} spacing={2}>
                 <Grid item xs={4}>
-                    <TextField
-                        label='ID do Mercado Pago'
-                        name='gatewayToken'
-                        value={data.gatewayToken}
-                        onChange={(e) => setData({ ...data, gatewayToken: e.target.value })}
-                        variant='outlined'
-                        type='text'
-                        size='small'
-                        fullWidth
-                    />
+                    {data.hasSplit && (
+                        <TextField
+                            label='ID do Mercado Pago'
+                            name='gatewayToken'
+                            value={data.gatewayToken}
+                            onChange={(e) => setData({ ...data, gatewayToken: e.target.value })}
+                            variant='outlined'
+                            type='text'
+                            size='small'
+                            fullWidth
+                        />
+                    )}
                 </Grid>
             </Grid>
 
-            <Grid item container lg={12} md={12} sm={12} xs={12} spacing={2} alignItems='center'>
-                <Grid item xs={3}>
-                    <TextField
-                        label='Url de autenticação OAuth'
-                        value={oAuthAuthenticationUrl ?? "Nenhuma url gerada"}
-                        onChange={() => { }}
-                        disabled={!oAuthAuthenticationUrl}
-                        variant='outlined'
-                        type='text'
-                        size='small'
-                        fullWidth
-                    />
-                </Grid>
+            {data.hasSplit && (
+                <Grid item container lg={12} md={12} sm={12} xs={12} spacing={2}>
+                    <Grid item xs={4}>
+                        <TextField
+                            label='Url de autenticação OAuth'
+                            value={oAuthAuthenticationUrl ?? "Nenhuma url gerada"}
+                            onChange={() => { }}
+                            disabled={!oAuthAuthenticationUrl}
+                            variant='outlined'
+                            type='text'
+                            size='small'
+                            fullWidth
+                        />
+                    </Grid>
 
-                <Grid item xs={2}>
-                    <Button onClick={copyOAuthUrl} variant='outlined' color='primary' disabled={!oAuthAuthenticationUrl}>
-                        Copiar
-                    </Button>
+                    <Grid item xs={2}>
+                        <Button onClick={copyOAuthUrl} variant='outlined' color='primary' disabled={!oAuthAuthenticationUrl}>
+                            Copiar
+                        </Button>
+                    </Grid>
                 </Grid>
-            </Grid>
+            )}
+            {data.hasSplit && (
+                <Grid item container lg={12} md={12} sm={12} xs={12} spacing={2} alignItems='center'>
+                    <Grid item xs={2}>
+                        <Button onClick={loadOAuthUrl} variant='text' color='primary'>
+                            {buttonLoading ? <CircularProgress size={25} /> : 'Gerar url de autenticação'}
+                        </Button>
+                    </Grid>
+                </Grid>
+            )}
 
-            <Grid item container lg={12} md={12} sm={12} xs={12} spacing={2} alignItems='center'>
-                <Grid item xs={2}>
-                    <Button onClick={loadOAuthUrl} variant='text' color='primary'>
-                        {buttonLoading ? <CircularProgress size={25} /> : 'Gerar url de autenticação'}
-                    </Button>
-                </Grid>
-            </Grid>
 
             <Grid item lg={12} md={12} sm={12} xs={12}>
                 <Divider />
