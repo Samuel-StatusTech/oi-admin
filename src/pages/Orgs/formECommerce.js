@@ -3,7 +3,7 @@ import React, { useState } from 'react'
 import { currencyMask, percentageMask, removeMask } from '../../utils/mask'
 import Api from '../../api';
 
-const defaultApiEndpoint = process.env.REACT_APP_ENDPOINT_DEFAULT || process.env.REACT_APP_ENDPOINT;
+const defaultApiEndpoint = "https://api.oitickets.com.br/api/v1"
 
 const FormECommerce = ({
     data,
