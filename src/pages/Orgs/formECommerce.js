@@ -3,6 +3,8 @@ import React, { useState } from 'react'
 import { currencyMask, percentageMask, removeMask } from '../../utils/mask'
 import Api from '../../api';
 
+const defaultApiEndpoint = process.env.REACT_APP_ENDPOINT_DEFAULT || process.env.REACT_APP_ENDPOINT;
+
 const FormECommerce = ({
     data,
     setData,
@@ -37,7 +39,9 @@ const FormECommerce = ({
         setButtonLoading(true)
 
         try {
-            const req = await Api.get(`/oauth/mercadopago/authorize?clientId=${clientId}`)
+            const req = await Api.get(`/oauth/mercadopago/authorize?clientId=${clientId}`, {
+                baseURL: defaultApiEndpoint,
+            })
 
             if (req.data?.success && req.data?.authUrl) {
                 setOAuthAuthenticationUrl(req.data.authUrl)
